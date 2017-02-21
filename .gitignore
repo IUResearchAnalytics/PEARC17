@@ -1,0 +1,16 @@
+*.docx
+.#*
+*.gz
+*.aux
+*.dvi
+*.ps
+*.log
+*.pdf
+*.bbl
+*.blg
+auto
+*.rel
+*.out
+*.fls
+*.fdb_latexmk
+*.cut
