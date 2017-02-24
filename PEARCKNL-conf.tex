@@ -72,9 +72,22 @@
 
 
 \begin{abstract}
-This paper provides a sample of a \LaTeX\ document which conforms,
-somewhat loosely, to the formatting guidelines for
-ACM SIG Proceedings.\footnote{This is an abstract footnote}
+We present performance results obtained with a new single-node performance
+  benchmark of the R programming environment on the many-core Xeon Phi Knights
+  Landing and standard Xeon-based compute nodes of the Stampede supercomputer
+  cluster at the Texas Advanced Computing Center.
+The benchmark package consists of microbenchmarks of matrix linear algebra
+  kernels and machine learning functionality included in the R distribution that
+  can be built from those kernels.
+Our microbenchmarking results show that the Knights Landing compute nodes are
+  competitive with or outperform the standard Xeon-based nodes for matrix
+  dimensions of moderate to large size for most of the microbenchmarks,
+  executing as much as five times faster than the standard Xeon-based nodes.
+For the clustering and neural network training microbenchmarks, the standard
+  Xeon-based nodes performed up to four times faster than their Xeon Phi
+  counterparts for many large data sets, indicating that commonly used R
+  packages may need to be reengineered to take advantage of existing optimized,
+  scalable kernels.
 \end{abstract}
 
 %
@@ -85,6 +98,11 @@ ACM SIG Proceedings.\footnote{This is an abstract footnote}
 \begin{CCSXML}
 <ccs2012>
 <concept>
+<concept>
+<concept_id>10010520.10010521.10010528.10010536</concept_id>
+<concept_desc>Computer systems organization~Multicore architectures</concept_desc>
+<concept_significance>500</concept_significance>
+</concept>
 <concept_id>10010405.10010432</concept_id>
 <concept_desc>Applied computing~Physical sciences and engineering</concept_desc>
 <concept_significance>300</concept_significance>
@@ -94,17 +112,12 @@ ACM SIG Proceedings.\footnote{This is an abstract footnote}
 <concept_desc>Applied computing~Mathematics and statistics</concept_desc>
 <concept_significance>100</concept_significance>
 </concept>
-<concept>
-<concept_id>10010520.10010521.10010528.10010536</concept_id>
-<concept_desc>Computer systems organization~Multicore architectures</concept_desc>
-<concept_significance>500</concept_significance>
-</concept>
 </ccs2012>
 \end{CCSXML}
 
+\ccsdesc[500]{Computer systems organization~Multicore architectures}
 \ccsdesc[300]{Applied computing~Physical sciences and engineering}
 \ccsdesc[100]{Applied computing~Mathematics and statistics}
-\ccsdesc[500]{Computer systems organization~Multicore architectures}
 
 % We no longer use \terms command
 %\terms{Theory}
