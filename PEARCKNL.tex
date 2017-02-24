@@ -9,6 +9,173 @@
   %   2. Broad discussion of matrix sizes, thread counts, strong scaling
   %   3. emphasize what we were getting at: SNB vs. KNL performance
   %      for similar thread counts and scalability
+% TODO: We need an introductory paragraph, perhaps just two sentences, to
+% introduce the overall purpose of what is going to becom a large section.
+% TODO: Add a subsection and an appropriate name of the subsection here.
+We developed a new R benchmark for HPC environments that tests the run-time
+  performance of compute-intensive computational kernels and packages that can
+  utilize optimized kernels.
+We included computational kernels that are common operations or steps in
+  higher-level machine learning and analytics algorithms in R applications.
+The computational kernels we included in the HPC benchmark are: Cholesky
+  decomposition, eigendecomposition, linear least squares fit, dense linear
+  solve, matrix cross product, matrix determinant, matrix-matrix multiplication,
+  matrix-vector multiplication, QR decomposition, and singular value
+  decomposition.
+Many of these kernels are in \textit{R Benchmark}.
+The Cholesky factorization, which factors a symmetric positive definite matrix
+  into two triangular factors, is often used to solve linear systems and to
+  generate random variables from multivariate normal
+  distributions~\cite{golub:matrix3}.
+The eigendecomposition decomposes a matrix into a matrix of eigenvectors and a
+  matrix of eigenvalues which have direct applications in science, engineering,
+  and data analysis~\cite{strang:linAlg93, strang:cse07, saad:largeEigen11}.
+The linear least squares fit is a ubiquitous method in modeling and statistics
+  for fitting a function with linear coefficients to a data
+  set~\cite{heath:scientific}.
+% TODO: This next sentence needs a reference
+The solution of a dense linear system of equations with multiple right-hand
+  sides is a common problem in modeling and simulation when multiple solutions
+  must be computed given a linear model of a system (the matrix) and several
+  measurements (the multiple right-hand sides).
+The fundamental linear algebra operations matrix cross product, matrix-matrix
+  multiplication, and matrix-vector multiplication are integral to other
+  kernels.
+The matrix determinant has practical applications in statistics as it is
+ involved in the definition of various probability distributions~\cite{grimmett:probability}.
+The QR decomposition, which factors a matrix into an orthogonal matrix and an
+  upper triangular matrix, is used in the solution of linear systems and as a
+  component of other decompositions such as the eigenvalue
+  decomposition~\cite{golub:matrix3, trefethen:numLinAlg}.
+The singular value decomposition, which decomposes a matrix into two unitary
+  matrices and a diagonal matrix, is a powerful decomposition with many
+  applications in data mining and machine learning~\cite{golub:matrix3, murphy:ml}.
+We have also included benchmark tests of neural network training and cluster
+  identification functions from the \textit{nnet} and \textit{cluster} packages,
+  respectively, that are included in the standard R distribution.
+The \texttt{nnet} function is used to train neural networks with a single hidden
+  layer~\cite{ripley:pattern96}, and the \texttt{pam} function, which implements
+  the partitioning around medoids algorithm~\cite{chu:kmedoids, reynolds:clustering},
+  was used to perform the cluster identification.
+We included benchmark tests of these packages because neural network training
+  and cluster identification can be implemented with computational kernels that
+  have been included in the benchmark.
+The neural network training benchmark trains a neural network on a set of
+  feature vectors drawn from a multivariate normal distribution to approximate
+  the probability density function from which the vectors were drawn.
+We chose to approximate a multivariate normal probability density function
+  because the training problem is easy to scale in both number of training
+  vectors and number of features.
+The clustering benchmark generates normally distributed clusters in an
+  $N$-dimensional, real-valued feature space where the mean of one cluster is
+  located at the origin and the means of two clusters are each located at
+  positions $-1$ and $1$ of each axis.
+Table~\ref{tab:microbenchmarks} shows the kernels and package functions tested
+  by each microbenchmark.
+We structured the HPC benchmark so that each kernel or package function is
+  tested within its own microbenchmark function.
+Each microbenchmark can be configured to compute run-time performance for
+  several problem sizes, where the performance with respect to each problem size
+  is computed as an average over a specified number of runs, as the number of
+  runs needed to obtain a consistent average may vary with problem size.
+Another advantage of implementing the microbenchmarks as separate R functions
+  is that they can be executed concurrently in cluster environments.
+
+\begin{table*}
+  \caption{HPC Microbenchmarks and Corresponding Kernel or Package Functions Tested}
+  \label{tab:microbenchmarks}
+  \begin{tabular}{ll}
+    \toprule
+    Microbenchmark & Kernel/Package function \\
+    \midrule
+    Cholesky factorization       & \texttt{chol} \\
+    eigendecomposition           & \texttt{eigen} \\
+    linear least squares fit     & \texttt{lsfit} \\
+    dense linear solve           & \texttt{solve} \\
+    matrix cross product         & \texttt{crossprod} \\
+    matrix determinant           & \texttt{determinant} \\
+    matrix-matrix multiplication & $\%*\%$ \\
+    matrix-vector multiplication & $\%*\%$ \\
+    QR decomposition             & \texttt{qr} \\
+    singular value decomposition & \texttt{svd} \\
+    neural network training      & \texttt{nnet} \\
+    cluster identification       & \texttt{pam} \\
+    \bottomrule
+  \end{tabular}
+\end{table*}
+
+
+\subsection{Performance Testing Objectives}
+
+Our performance testing objectives were to determine the following: which of
+  the functions implemented multithreaded parallelism; the single-node
+  performance on both the Sandy Bridge and Knights Landing nodes; and an
+  estimate of the overhead incurred by R kernel functions when compared to
+  similar kernel functionality executed exclusively in C.
+Because the kernel functions are used as components in many machine learning and
+  analytics algorithms, it was important for us to determine which kernel
+  functions performed poorly on the Xeon Phi architecture compared to their
+  performance on the Xeon Sandy Bridge architecture.
+In addition to performance testing the kernel functions, we tested the machine
+  learning package functions to determine if those functions leverage any
+  parallelized kernels.
+Because the kernel functions are implemented as wrappers around external C
+  function calls, it was worthwhile for us to run performance tests with
+  similar kernel functionality exclusively in C to determine how much potential
+  there is for performance improvement of the wrapper functions.
+
+\subsection{Description of Tested Systems}
+% The tables are omitted for now.  Will probably leave them out to reduce
+% page count.
+We conducted single-node performance tests on the Sandy Bridge and Knights
+  Landing compute nodes of the Stampede computing cluster.
+Each Sandy Bridge compute node is a Dell PowerEdge C8220z with two Intel Xeon
+  E5-2680 (Sandy Bridge architecture) processors with 20 MB of L2 cache each,
+  32 GB of DDR3 RAM, and a 61-core Intel Xeon Phi SE10P coprocessor.
+The coprocessor has 8 GB of DDR5 RAM and 8 dual-channel controllers, with a peak
+  memory bandwidth of 320GB/s.
+Table II lists more details about relevant Sandy Bridge compute node
+  components~\cite{tacc:stampedeGuide}.  
+Each Knights Landing compute node is a Dell PowerEdge with a single 68-core
+  Intel Xeon Phi 7250 CPU (Knights Landing architecture), 96 GB of DDR4 RAM, and  16 GB of on-package Multi-Channel Dynamic Random Access Memory (MCDRAM).
+The cores in the Xeon Phi CPU are grouped by tiles containing two cores and a
+  shared 1 MB L2 cache~\cite{intel:xeonphi}.
+The tiles communicate with each other via a two-dimensional mesh network to
+  maintain cache consistency.
+The Xeon Phi CPU can be configured in various clustering modes to group the
+  tiles into quadrants or hemispheres to take advantage of data locality in
+  applications~\cite{vladimirov:knlModes}.
+The MCDRAM is high bandwidth memory that resides on the CPU package and can
+  operate in different modes which are determined at boot
+  time~\cite{vladimirov:knlModes, asai:mcdramKnl}.
+When the CPU is in flat mode, applications can either explicitly allocate memory
+  in MCDRAM, or they can be run from MCDRAM using the command line utility
+  numactl to launch the application.
+Programs executed with numactl will allocate as much memory from MCDRAM as is
+  available; any additional memory needed by the program will be allocated in
+  main memory.
+When the CPU is in cache mode, the MCDRAM acts as a level 3 cache, operating
+  transparently to applications.
+Table III lists the relevant Knights Landing compute node
+  components~\cite{tacc:stampedeGuide}.
+We conducted performance testing with the R programming environment version
+  3.2.1 which we downloaded from the Comprehensive R Archive Network (CRAN) on
+  both systems.
+We built the programming environment using the Intel C compiler and linked with
+  the parallel Intel Math Kernel Library (MKL).
+The compiler and MKL versions we used to build R on each system are given in
+  Table IV.
+Table V shows the compiling and linking options we used to build the R
+  distribution for each type of compute node for we tested performance with.
+The \texttt{xHost} option selects the highest instruction set available on the
+  Sandy Bridge processor.
+The \texttt{xMIC-AVX512} option is needed to select the AVX-512 vector
+  instruction set, the highest instruction set on Knights Landing, as the
+  \texttt{xHost} option is not supported for Xeon Phi processors.
+We passed the following options to GNU Autoconf to generate shared R libraries
+  and to link R with the MKL BLAS and LAPACK libraries: \texttt{--without-x},
+  \texttt{--enable-R-shlib}, \texttt{--enable-shared}, \texttt{--with-blas},
+  and \texttt{--with-lapack}.
 
 \section{Results}
 % Part c of white paper section 4 to be moved into results section
@@ -254,14 +421,14 @@ Our tests revealed that the neither of the package functions parallelized, as
 Nevertheless, the tests are useful for assessing performance of commonly used R
   libraries on each node type.
 The Sandy Bridge nodes were approximately $3.5$ times faster and $3.0$ times
-  faster than the Knights Landing nodes at training the neural net with three
-  features and five features (Table~\ref{tab:nnetResults}), respectively.
+  faster than the Knights Landing nodes at training the neural network with
+  three features and five features (Table~\ref{tab:nnetResults}), respectively.
 Note that the run times decreased when we increased the number of feature
   vectors from $5000$ to $10000$ and the feature vector was of dimension three.
-This is because neural net training solves a non-convex objective function that
-  can vary greatly with the number of training vectors and features; therefore,
-  it is useful only to compare performance between the two node types for a pair
-  of features and number of training vectors.
+This is because neural network training solves a non-convex objective function
+  that can vary greatly with the number of training vectors and features;
+  therefore, it is useful only to compare performance between the two node types
+  for a pair of features and number of training vectors.
 
 We used the package default parameters to test the \texttt{pam} clustering
   benchmark function to compute the membership of feature vectors to seven
@@ -432,9 +599,9 @@ The Sandy Bridge nodes were substantially faster at neural network training with
 The Sandy Bridge nodes were faster at computing clusters with the \texttt{pam}
   function for $35000$ training vectors or less, but Knights Landing nodes were
   faster beyond $40000$ training vectors.
-Performance testing of the neural net training and clustering functions should
-  be conducted with larger numbers of features to determine if the performance
-  of the Knights Landing nodes will improve with more features.
+Performance testing of the neural network training and clustering functions
+  should be conducted with larger numbers of features to determine if the
+  performance of the Knights Landing nodes will improve with more features.
 Furthermore, additional compute intensive machine learning or data analytics
   functionality commonly used in R should eventually be included in the
   benchmark to provide more extensive performance assessments.
