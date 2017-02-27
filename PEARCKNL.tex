@@ -161,10 +161,12 @@ Each Knights Landing compute node is a Dell PowerEdge with a single 68-core,
   architecture); $96$~GB of $2400$~MHz DDR4 RAM;
   and $16$~GB of on-package Multi-Channel Dynamic Random Access Memory (MCDRAM)
   with $400$~GB/s bandwidth.
-The cores in the Xeon Phi CPU are grouped by tiles containing two cores and a
-  shared $1$~MB L2 cache~\cite{intel:xeonphi}.
-The tiles communicate with each other via a two-dimensional mesh network to
-  maintain cache consistency.
+Each of the Xeon Phi cores has two 512-bit vector processing units which
+  support a fused multiply-add operation.
+The cores, which are grouped by tiles containing two cores and a shared
+  $1$~MB L2 cache~\cite{intel:xeonphi}, communicate with each other via a
+  two-dimensional mesh network to maintain cache consistency.
+
 The Xeon Phi CPU can be configured in various clustering modes to group the
   tiles into quadrants or hemispheres to take advantage of data locality in
   applications~\cite{vladimirov:knlModes}.
@@ -174,31 +176,44 @@ The MCDRAM is high bandwidth memory that resides on the CPU package and can
 When the CPU is in flat mode, applications can either explicitly allocate memory
   in MCDRAM, or they can be run from MCDRAM using the command line utility
   \texttt{numactl} to launch the application.
-Programs executed with \texttt{numactl} will allocate as much memory from
-  MCDRAM as is available; any additional memory needed by the program will be
+Programs executed with \texttt{numactl} allocate as much memory from
+  MCDRAM as is available; any additional memory needed by the program is
   allocated in main memory.
 When the CPU is in cache mode, the MCDRAM acts as a level 3 cache, operating
-  transparently to applications.
+  transparently to applications; we tested all of the microbenchmarks in
+  cache mode and a few in flat mode to compare performance in each mode.
+
 %Table III lists the relevant Knights Landing compute node
 %  components~\cite{tacc:stampedeGuide}.
-We conducted performance testing with the R programming environment version
-  3.2.1 which we downloaded from the Comprehensive R Archive Network (CRAN) on
-  both systems.
-We built the programming environment using the Intel C compiler and linked with
-  the parallel Intel Math Kernel Library (MKL).
-The compiler and MKL versions we used to build R on each system are given in
-  Table IV.
-Table V shows the compiling and linking options we used to build the R
-  distribution for each type of compute node for we tested performance with.
-The \texttt{xHost} option selects the highest instruction set available on the
-  Sandy Bridge processor.
-The \texttt{xMIC-AVX512} option is needed to select the AVX-512 vector
-  instruction set, the highest instruction set on Knights Landing, as the
-  \texttt{xHost} option is not supported for Xeon Phi processors.
-We passed the following options to GNU Autoconf to generate shared R libraries
-  and to link R with the MKL BLAS and LAPACK libraries: \texttt{--without-x},
-  \texttt{--enable-R-shlib}, \texttt{--enable-shared}, \texttt{--with-blas},
-  and \texttt{--with-lapack}.
+We conducted the performance tests with the R programming environment version
+  3.2.1 which we downloaded from the Comprehensive R Archive Network (CRAN).
+On the Sandy Bridge nodes, which ran CentOS 6 (kernel
+  2.6.32-431.17.1.el6.x86\_64), we built the programming environment with
+  the Intel XE compiler versions 15.0 Update 2 (v. 15.0.2.164) and
+  17.0 Update 1 (v. 17.0.1.132), and we linked the resulting executables with
+  the parallel Intel Math Kernel Library (MKL) versions 11.2.2 and 2017 Update
+  1, respectively.
+On the Knights Landing nodes, which ran CentOS 7 (kernel
+  3.10.0-327.36.3.el7.xpps1\_1.4.1.3272.x86\_64), we built the programming
+  environment with the Intel XE compiler and linked with parallel MKL
+  version 17.0 Update 1.
+The \texttt{-xHost} option was applied to both Sandy Bridge builds, and the
+  \texttt{-xMIC\_AVX512} option was applied to the Knights Landing build to
+  utilize the vector instruction set.
+
+%The compiler and MKL versions we used to build R on each system are given in
+%  Table IV.
+%Table V shows the compiling and linking options we used to build the R
+%  distribution for each type of compute node for we tested performance with.
+%The \texttt{xHost} option selects the highest instruction set available on the
+%  Sandy Bridge processor.
+%The \texttt{xMIC-AVX512} option is needed to select the AVX-512 vector
+%  instruction set, the highest instruction set on Knights Landing, as the
+%  \texttt{xHost} option is not supported for Xeon Phi processors.
+%We passed the following options to GNU Autoconf to generate shared R libraries
+%  and to link R with the MKL BLAS and LAPACK libraries: \texttt{--without-x},
+%  \texttt{--enable-R-shlib}, \texttt{--enable-shared}, \texttt{--with-blas},
+%  and \texttt{--with-lapack}.
 
 \section{Results}
 % Part c of white paper section 4 to be moved into results section
