@@ -9,57 +9,74 @@
   %   2. Broad discussion of matrix sizes, thread counts, strong scaling
   %   3. emphasize what we were getting at: SNB vs. KNL performance
   %      for similar thread counts and scalability
-% TODO: We need an introductory paragraph, perhaps just two sentences, to
-% introduce the overall purpose of what is going to becom a large section.
-% TODO: Add a subsection and an appropriate name of the subsection here.
-We developed a new R benchmark for HPC environments that tests the run-time
-  performance of compute-intensive computational kernels and packages that can
-  utilize optimized kernels.
-We included computational kernels that are common operations or steps in
-  higher-level machine learning and analytics algorithms in R applications.
-The computational kernels we included in the HPC benchmark are: Cholesky
-  decomposition, eigendecomposition, linear least squares fit, dense linear
-  solve, matrix cross product, matrix determinant, matrix-matrix multiplication,
-  matrix-vector multiplication, QR decomposition, and singular value
-  decomposition.
-Many of these kernels are in \textit{R Benchmark}.
-The Cholesky factorization, which factors a symmetric positive definite matrix
-  into two triangular factors, is often used to solve linear systems and to
-  generate random variables from multivariate normal
-  distributions~\cite{golub:matrix3}.
-The eigendecomposition decomposes a matrix into a matrix of eigenvectors and a
-  matrix of eigenvalues which have direct applications in science, engineering,
-  and data analysis~\cite{strang:linAlg93, strang:cse07, saad:largeEigen11}.
-The linear least squares fit is a ubiquitous method in modeling and statistics
-  for fitting a function with linear coefficients to a data
-  set~\cite{heath:scientific}.
-% TODO: This next sentence needs a reference
-The solution of a dense linear system of equations with multiple right-hand
-  sides is a common problem in modeling and simulation when multiple solutions
-  must be computed given a linear model of a system (the matrix) and several
-  measurements (the multiple right-hand sides).
-The fundamental linear algebra operations matrix cross product, matrix-matrix
-  multiplication, and matrix-vector multiplication are integral to other
+% TODO: We need an introductory paragraph to
+% introduce the overall purpose of what is going to be a large section.
+We developed a robust R benchmark for HPC environments and used it to
+  compare the performance of the new Xeon Phi-based nodes of the Stampede 2
+  system with the standard Xeon-based nodes of the original Stampede system.
+The HPC benchmark performs microbenchmarking of compute-intensive dense linear
+  algebra kernels and packages that can utilize optimized linear algebra
   kernels.
-The matrix determinant has practical applications in statistics as it is
- involved in the definition of various probability distributions~\cite{grimmett:probability}.
-The QR decomposition, which factors a matrix into an orthogonal matrix and an
-  upper triangular matrix, is used in the solution of linear systems and as a
-  component of other decompositions such as the eigenvalue
-  decomposition~\cite{golub:matrix3, trefethen:numLinAlg}.
-The singular value decomposition, which decomposes a matrix into two unitary
-  matrices and a diagonal matrix, is a powerful decomposition with many
-  applications in data mining and machine learning~\cite{golub:matrix3, murphy:ml}.
-We have also included benchmark tests of neural network training and cluster
+We executed each microbenchmark with a wide range of problem dimensions and
+  thread counts to determine run time performance and scalability of the
+  underlying R functionality on each type of node, using strong scaling as the
+  metric to determine scalability for various thread counts.
+% JRM - The sentence below indicates a goal not explicitly stated in the
+% white paper; we should find a place for it, but it doen't fit under
+% methodology.
+%It is our intention that the HPC benchmark also be used in performance
+%  optimization efforts.
+% JRM - This sentence was redundant; removed.
+%We included computational kernels that are common operations or steps in
+%  higher-level machine learning and analytics algorithms in R applications.
+\subsection{A New R Benchmark for HPC Environments}
+We chose dense linear algebra kernels for inclusion in the benchmark
+  because they form the computational foundation of many numerical methods
+  frequently utilized in R applications.
+The dense linear algebra kernels we included in the benchmark are: Cholesky
+  factorization, eigendecomposition, linear least squares fit, dense linear
+  solve, matrix cross product, matrix determinant, matrix-matrix multiplication,
+  matrix-vector multiplication, QR factorization, and singular value
+  decomposition.
+%Many of these kernels are in \textit{R Benchmark}.
+% JRM - Omit the descriptions of the kernels and their applicability until
+% we know they won't push the paper length over the page limit
+%The Cholesky factorization, which factors a symmetric positive definite matrix
+% into two triangular factors, is often used to solve linear systems and to
+% generate random variables from multivariate normal
+% distributions~\cite{golub:matrix3}.
+%The eigendecomposition decomposes a matrix into a matrix of eigenvectors and a
+%  matrix of eigenvalues which have direct applications in science, engineering,
+%  and data analysis~\cite{strang:linAlg93, strang:cse07, saad:largeEigen11}.
+%The linear least squares fit is a ubiquitous method in modeling and statistics
+%  for fitting a function with linear coefficients to a data
+%  set~\cite{heath:scientific}.
+%% TODO: This next sentence needs a reference
+%The solution of a dense linear system of equations with multiple right-hand
+%  sides is a common problem in modeling and simulation when multiple solutions
+%  must be computed given a linear model of a system (the matrix) and several
+%  measurements (the multiple right-hand sides).
+%The fundamental linear algebra operations matrix cross product, matrix-matrix
+%  multiplication, and matrix-vector multiplication are integral to other
+%  kernels.
+%The matrix determinant has practical applications in statistics as it is
+% involved in the definition of various probability distributions~\cite{grimmett:probability}.
+%The QR factorization, which factors a matrix into an orthogonal matrix and an
+%  upper triangular matrix, is used in the solution of linear systems and as a
+%  component of other decompositions such as the eigendecomposition~\cite{golub:matrix3, trefethen:numLinAlg}.
+%The singular value decomposition, which decomposes a matrix into two unitary
+%  matrices and a diagonal matrix, is a powerful decomposition with many
+%  applications in data mining and machine learning~\cite{golub:matrix3, murphy:ml}.
+We also included microbenchmarks of neural network training and cluster
   identification functions from the \textit{nnet} and \textit{cluster} packages,
   respectively, that are included in the standard R distribution.
 The \texttt{nnet} function is used to train neural networks with a single hidden
   layer~\cite{ripley:pattern96}, and the \texttt{pam} function, which implements
   the partitioning around medoids algorithm~\cite{chu:kmedoids, reynolds:clustering},
-  was used to perform the cluster identification.
+  is used to perform the cluster identification.
 We included benchmark tests of these packages because neural network training
-  and cluster identification can be implemented with computational kernels that
-  have been included in the benchmark.
+  and cluster identification can be implemented with computational kernels
+  tested in the benchmark.
 The neural network training benchmark trains a neural network on a set of
   feature vectors drawn from a multivariate normal distribution to approximate
   the probability density function from which the vectors were drawn.
@@ -70,14 +87,16 @@ The clustering benchmark generates normally distributed clusters in an
   $N$-dimensional, real-valued feature space where the mean of one cluster is
   located at the origin and the means of two clusters are each located at
   positions $-1$ and $1$ of each axis.
+
 Table~\ref{tab:microbenchmarks} shows the kernels and package functions tested
   by each microbenchmark.
 We structured the HPC benchmark so that each kernel or package function is
   tested within its own microbenchmark function.
 Each microbenchmark can be configured to compute run-time performance for
-  several problem sizes, where the performance with respect to each problem size
-  is computed as an average over a specified number of runs, as the number of
-  runs needed to obtain a consistent average may vary with problem size.
+  several problem sizes, where the run time with respect to each problem size
+  is computed as an average over a configurable number of runs -- enabling
+  users to test small problem sizes over a large number of runs to account
+  for operating system interference.
 Another advantage of implementing the microbenchmarks as separate R functions
   is that they can be executed concurrently in cluster environments.
 
@@ -87,7 +106,7 @@ Another advantage of implementing the microbenchmarks as separate R functions
   \begin{tabular}{ll}
     \toprule
     Microbenchmark & Kernel/Package function \\
-    \midrule
+   \midrule
     Cholesky factorization       & \texttt{chol} \\
     eigendecomposition           & \texttt{eigen} \\
     linear least squares fit     & \texttt{lsfit} \\
@@ -104,42 +123,46 @@ Another advantage of implementing the microbenchmarks as separate R functions
   \end{tabular}
 \end{table*}
 
-
 \subsection{Performance Testing Objectives}
-
-Our performance testing objectives were to determine the following: which of
-  the functions implemented multithreaded parallelism; the single-node
-  performance on both the Sandy Bridge and Knights Landing nodes; and an
-  estimate of the overhead incurred by R kernel functions when compared to
-  similar kernel functionality executed exclusively in C.
-Because the kernel functions are used as components in many machine learning and
-  analytics algorithms, it was important for us to determine which kernel
+% JRM - Might want to merge this paragraph with the opening section paragraph
+% and make the resulting paragraph more concise.
+Our performance testing objectives were to determine the following: which
+  functions implemented multithreaded parallelism; the single-node
+  run time and strong scaling on both the Sandy Bridge and Knights
+  Landing nodes; and an estimate of the overhead incurred by R kernel functions
+  when compared to similar kernel functionality executed exclusively in C.
+Given that the kernel functions are used as components in many machine learning
+  and analytics algorithms, it was important for us to determine which kernel
   functions performed poorly on the Xeon Phi architecture compared to their
   performance on the Xeon Sandy Bridge architecture.
+Furthermore, it was worthwhile for us to run performance tests with
+  similar kernel functionality exclusively in C to determine the potential
+  for performance improvement of the wrapper functions which implement the
+  kernels.
 In addition to performance testing the kernel functions, we tested the machine
   learning package functions to determine if those functions leverage any
   parallelized kernels.
-Because the kernel functions are implemented as wrappers around external C
-  function calls, it was worthwhile for us to run performance tests with
-  similar kernel functionality exclusively in C to determine how much potential
-  there is for performance improvement of the wrapper functions.
 
 \subsection{Description of Tested Systems}
 % The tables are omitted for now.  Will probably leave them out to reduce
 % page count.
 We conducted single-node performance tests on the Sandy Bridge and Knights
   Landing compute nodes of the Stampede computing cluster.
-Each Sandy Bridge compute node is a Dell PowerEdge C8220z with two Intel Xeon
-  E5-2680 (Sandy Bridge architecture) processors with 20 MB of L2 cache each,
-  32 GB of DDR3 RAM, and a 61-core Intel Xeon Phi SE10P coprocessor.
-The coprocessor has 8 GB of DDR5 RAM and 8 dual-channel controllers, with a peak
-  memory bandwidth of 320GB/s.
-Table II lists more details about relevant Sandy Bridge compute node
-  components~\cite{tacc:stampedeGuide}.  
-Each Knights Landing compute node is a Dell PowerEdge with a single 68-core
-  Intel Xeon Phi 7250 CPU (Knights Landing architecture), 96 GB of DDR4 RAM, and  16 GB of on-package Multi-Channel Dynamic Random Access Memory (MCDRAM).
+Each Sandy Bridge compute node is a Dell PowerEdge C8220z with two eight-core,
+  $2.7$~GHz ($3.5$~GHz turbo) Intel Xeon E5-2680 (Sandy Bridge architecture)
+  processors with $20$~MB of L2 cache each; $32$~GB of $1600$~MHz DDR3 RAM; and
+  a 61-core Intel Xeon Phi SE10P coprocessor.
+%The coprocessor has 8 GB of DDR5 RAM and 8 dual-channel controllers, with a peak
+%  memory bandwidth of 320GB/s.
+%Table II lists more details about relevant Sandy Bridge compute node
+% components~\cite{tacc:stampedeGuide}.  
+Each Knights Landing compute node is a Dell PowerEdge with a single 68-core,
+  $1.4$~GHz ($1.6$~GHz turbo) Intel Xeon Phi 7250 CPU (Knights Landing
+  architecture); $96$~GB of $2400$~MHz DDR4 RAM;
+  and $16$~GB of on-package Multi-Channel Dynamic Random Access Memory (MCDRAM)
+  with $400$~GB/s bandwidth.
 The cores in the Xeon Phi CPU are grouped by tiles containing two cores and a
-  shared 1 MB L2 cache~\cite{intel:xeonphi}.
+  shared $1$~MB L2 cache~\cite{intel:xeonphi}.
 The tiles communicate with each other via a two-dimensional mesh network to
   maintain cache consistency.
 The Xeon Phi CPU can be configured in various clustering modes to group the
@@ -150,14 +173,14 @@ The MCDRAM is high bandwidth memory that resides on the CPU package and can
   time~\cite{vladimirov:knlModes, asai:mcdramKnl}.
 When the CPU is in flat mode, applications can either explicitly allocate memory
   in MCDRAM, or they can be run from MCDRAM using the command line utility
-  numactl to launch the application.
-Programs executed with numactl will allocate as much memory from MCDRAM as is
-  available; any additional memory needed by the program will be allocated in
-  main memory.
+  \texttt{numactl} to launch the application.
+Programs executed with \texttt{numactl} will allocate as much memory from
+  MCDRAM as is available; any additional memory needed by the program will be
+  allocated in main memory.
 When the CPU is in cache mode, the MCDRAM acts as a level 3 cache, operating
   transparently to applications.
-Table III lists the relevant Knights Landing compute node
-  components~\cite{tacc:stampedeGuide}.
+%Table III lists the relevant Knights Landing compute node
+%  components~\cite{tacc:stampedeGuide}.
 We conducted performance testing with the R programming environment version
   3.2.1 which we downloaded from the Comprehensive R Archive Network (CRAN) on
   both systems.
@@ -191,7 +214,7 @@ We configured multithreading of each test through a set of default global
 The default global parameters, which were implemented as environment variables,
   are listed in Table~\ref{tab:threading}.
 The chosen thread affinity, controlled by \texttt{KMP\_AFFINITY} is recommended
-  in the MKL developer’s guide~\cite{intel:mkl2017}.
+  in the MKL developer's guide~\cite{intel:mkl2017}.
 We disabled the dynamic thread adjustment controlled by \texttt{OMP\_DYNAMIC}
   and \texttt{KMP\_DYNAMIC} so that the scaling tests could be conducted
   ~\cite{intel:cpp2015, intel:cpp2017, intel:mkl11_2, intel:mkl2017}.
@@ -392,7 +415,7 @@ We also tested the performance of the Cholesky factorization, dense linear
   solve, and matrix cross product kernels when run exclusively out of the
   high-bandwidth MCDRAM.
 We accomplished this by executing the kernels on Knights Landing nodes booted in
-  flat mode and used the numactl utility with the \texttt{--preferred} option
+  flat mode and used the \texttt{numactl} utility with the \texttt{--preferred} option
   set to indicate that as much memory as possible for the R programming
   environment was to be allocated in the MCDRAM NUMA node; the environment and
   the dynamically allocated matrices we tested did fit entirely in MCDRAM.
