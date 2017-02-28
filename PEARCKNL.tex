@@ -1,6 +1,76 @@
 \section{Introduction}
 % TODO: Move sections 1 and 2 of white paper into introduction
 
+The increasing demand for high-performance cluster computing in data analysis, driven by
+increasing data set size and the computational complexity of analyzing large amounts of
+data, has rivaled that of scientific computing in recent years \cite{fox:bdBenchmarking,
+kouzes:paradigm}.  The large amounts of RAM per node, high storage capacity, and advanced
+processing capabilities of modern high-performance computing (HPC) clusters are an
+attractive option for data analysts to perform their computation given the large size of
+their data and the increasing emphasis on computationally demanding analytical tools like
+machine learning [3, 4, 5].  Depending on the nature of the analysis to be performed,
+analytics workflows may be implemented as concurrent processes on several nodes of a
+computing cluster with little or no coordination between them, or as highly coordinated
+parallel processes in which the nodes perform portions of the same computational task.
+Examples of the former type of analysis include Monte Carlo simulations and optimization
+problems that are solved for many different initial conditions to compute an optimal
+result.  An example of the latter type of analysis is the solution of large, sparse linear
+systems of such high order that the computation of the solution can be effectively
+parallelized across the nodes. Regardless of whether the workflow is implemented as
+concurrent or parallel processes, it is important for data analysts to have software
+environments at their disposal which can exploit the performance advantages of modern HPC
+clusters.  Data analysts have come to rely heavily on the open source R programming
+environment to manipulate and analyze their data.  The R programming environment provides
+a language, the R programming language, which was designed around statistical computing,
+and an interpreter for executing R programs [6].  The R language interpreter is
+implemented in the C programming language, and the functionality of the programming
+environment can be extended through packages that are commercially available or available
+as open source.  The ability to develop R packages in C means that developers can extend
+the functionality of the environment and achieve high performance.  This also gives the R
+interpreter the ability to link to external libraries optimized for performance on a given
+system.  As an example, the R environment can be compiled to dynamically link with
+optimized instances of the BLAS [7] and LAPACK [8] libraries for performing linear algebra
+computations.  Optimization of the R interpreter, its intrinsic functionality, and R
+packages for specific hardware architectures will be necessary for data analysts to take
+full advantage of the latest HPC clusters, and to obviate the need to reengineer their
+analysis workflows in another language. Performance benchmarks provide a way to assess the
+performance of software on a given computing platform and to compare performance of
+software across different platforms.  The performance benchmark results can also be used
+to prioritize software performance optimization efforts on emerging HPC systems.  One such
+system is the new Stampede 2 supercomputer cluster being installed at the Texas Advanced
+Computing Center (TACC).  The CPU used in the Stampede 2 system is the Intel Xeon Phi
+which is a many-core, vector processor with 68 cores and two 512-bit vector processing
+units per core, a sufficient deviation from the standard Xeon processors and Xeon Phi
+accelerators of the original Stampede system to necessitate a performance assessment of
+the R programming environment on both systems [9].  We developed an R performance
+benchmark to determine the single-node run-time performance of compute intensive linear
+algebra kernels that are common to many data analytics algorithms, and the run-time
+performance of machine learning functionality commonly implemented with linear algebra
+operations.  We then performed single-node strong scaling tests of the benchmark on both
+Stampede systems to determine problem sizes and numbers of threads for which the Stampede
+2 nodes were competitive or outperformed their predecessors.  It is our intention that the
+results be used to guide future performance optimization efforts of the R programming
+environment to increase the applicability of HPC clusters like the Stampede 2 system to
+compute-intensive data analysis. I.	The Need for a More Robust R Benchmark There are very
+few R performance benchmarks, and there is no R performance benchmark that has been peer
+reviewed and accepted as a standard.  The most common and robust benchmark is the R
+Benchmark [10] which runs fifteen different microbenchmarks covering matrix formation,
+matrix factorization, solving linear systems of equations, and sorting.  Other benchmarks
+like bench [10], for example, are microbenchmarks that focus on a few specific
+computational kernels in R, but they lack the coverage needed to comprehensively assess R
+performance in a high-performance computing environment. Although R Benchmark is the most
+robust benchmark publicly available, it lacks flexibility and it is focused only on
+testing intrinsic functionality while leaving the performance of packages included in the
+standard R distribution unassessed.  The benchmark is contained in a single R function
+which times each R operation or function to be performance tested, but there is no
+functionality to choose a specific operation or function to performance test.
+Furthermore, the size of the input data to each test is hardcoded and there is no way to
+loop over larger problem sizes as would be needed in scalability studies to test the
+effectiveness of parallelism.  Also, users of the benchmark cannot set the number of runs
+over which to average the run time of a specific function without changing the number of
+runs for all functions tested.  The monolithic structure of R Benchmark also prevents
+configuring the microbenchmarks to run concurrently in a cluster environment.
+
 
 \section{Methodology and Approach}
 % TODO: Methodology/approach section after introduction
@@ -476,144 +546,6 @@ With $40005$ feature vectors, the Knights Landing nodes were $1.11$ times faster
   \caption{Training Parameters Used with Neural Network Training Benchmark}
   \label{tab:nnetParams}
   \begin{tabular}{lll}
-
-
-\section{The Body of The Paper}
-Typically, the body of a paper is organized into a hierarchical
-structure, with numbered or unnumbered headings for sections,
-subsections, sub-subsections, and even smaller sections.  The command
-\texttt{{\char'134}section} that precedes this paragraph is part of
-such a hierarchy.\footnote{This is a footnote.} \LaTeX\ handles the
-numbering and placement of these headings for you, when you use the
-appropriate heading commands around the titles of the headings.  If
-you want a sub-subsection or smaller part to be unnumbered in your
-output, simply append an asterisk to the command name.  Examples of
-both numbered and unnumbered headings will appear throughout the
-balance of this sample document.
-
-Because the entire article is contained in the \textbf{document}
-environment, you can indicate the start of a new paragraph with a
-blank line in your input file; that is why this sentence forms a
-separate paragraph.
-
-\subsection{Type Changes and {\itshape Special} Characters}
-
-We have already seen several typeface changes in this sample.  You can
-indicate italicized words or phrases in your text with the command
-\texttt{{\char'134}textit}; emboldening with the command
-\texttt{{\char'134}textbf} and typewriter-style (for instance, for
-computer code) with \texttt{{\char'134}texttt}.  But remember, you do
-not have to indicate typestyle changes when such changes are part of
-the \textit{structural} elements of your article; for instance, the
-heading of this subsection will be in a sans serif\footnote{Another
-  footnote here.  Let's make this a rather long one to see how it
-  looks.} typeface, but that is handled by the document class file.
-Take care with the use of\footnote{Another footnote.}  the
-curly braces in typeface changes; they mark the beginning and end of
-the text that is to be in the different typeface.
-
-You can use whatever symbols, accented characters, or non-English
-characters you need anywhere in your document; you can find a complete
-list of what is available in the \textit{\LaTeX\ User's Guide}
-\cite{Lamport:LaTeX}.
-
-\subsection{Math Equations}
-You may want to display math equations in three distinct styles:
-inline, numbered or non-numbered display.  Each of
-the three are discussed in the next sections.
-
-\subsubsection{Inline (In-text) Equations}
-A formula that appears in the running text is called an
-inline or in-text formula.  It is produced by the
-\textbf{math} environment, which can be
-invoked with the usual \texttt{{\char'134}begin\,\ldots{\char'134}end}
-construction or with the short form \texttt{\$\,\ldots\$}. You
-can use any of the symbols and structures,
-from $\alpha$ to $\omega$, available in
-\LaTeX~\cite{Lamport:LaTeX}; this section will simply show a
-few examples of in-text equations in context. Notice how
-this equation:
-\begin{math}
-  \lim_{n\rightarrow \infty}x=0
-\end{math},
-set here in in-line math style, looks slightly different when
-set in display style.  (See next section).
-
-\subsubsection{Display Equations}
-A numbered display equation---one set off by vertical space from the
-text and centered horizontally---is produced by the \textbf{equation}
-environment. An unnumbered display equation is produced by the
-\textbf{displaymath} environment.
-
-Again, in either environment, you can use any of the symbols
-and structures available in \LaTeX\@; this section will just
-give a couple of examples of display equations in context.
-First, consider the equation, shown as an inline equation above:
-\begin{equation}
-  \lim_{n\rightarrow \infty}x=0
-\end{equation}
-Notice how it is formatted somewhat differently in
-the \textbf{displaymath}
-environment.  Now, we'll enter an unnumbered equation:
-\begin{displaymath}
-  \sum_{i=0}^{\infty} x + 1
-\end{displaymath}
-and follow it with another numbered equation:
-\begin{equation}
-  \sum_{i=0}^{\infty}x_i=\int_{0}^{\pi+2} f
-\end{equation}
-just to demonstrate \LaTeX's able handling of numbering.
-
-\subsection{Citations}
-Citations to articles~\cite{bowman:reasoning,
-clark:pct, braams:babel, herlihy:methodology},
-conference proceedings~\cite{clark:pct} or maybe
-books \cite{Lamport:LaTeX, salas:calculus} listed
-in the Bibliography section of your
-article will occur throughout the text of your article.
-You should use BibTeX to automatically produce this bibliography;
-you simply need to insert one of several citation commands with
-a key of the item cited in the proper location in
-the \texttt{.tex} file~\cite{Lamport:LaTeX}.
-The key is a short reference you invent to uniquely
-identify each work; in this sample document, the key is
-the first author's surname and a
-word from the title.  This identifying key is included
-with each item in the \texttt{.bib} file for your article.
-
-The details of the construction of the \texttt{.bib} file
-are beyond the scope of this sample document, but more
-information can be found in the \textit{Author's Guide},
-and exhaustive details in the \textit{\LaTeX\ User's
-Guide} by Lamport~\shortcite{Lamport:LaTeX}.
-
-
-This article shows only the plainest form
-of the citation command, using \texttt{{\char'134}cite}.
-
-\subsection{Tables}
-Because tables cannot be split across pages, the best
-placement for them is typically the top of the page
-nearest their initial cite.  To
-ensure this proper ``floating'' placement of tables, use the
-environment \textbf{table} to enclose the table's contents and
-the table caption.  The contents of the table itself must go
-in the \textbf{tabular} environment, to
-be aligned properly in rows and columns, with the desired
-horizontal and vertical rules.  Again, detailed instructions
-on \textbf{tabular} material
-are found in the \textit{\LaTeX\ User's Guide}.
-
-Immediately following this sentence is the point at which
-Table~\ref{tab:freq} is included in the input file; compare the
-placement of the table here with the table in the printed
-output of this document.
-
-\begin{table}
-  \caption{Frequency of Special Characters}
-  \label{tab:freq}
-  \begin{tabular}{ccl}
-\end{tabular}
     \toprule
     Training parameters & Description & Value\\
     \midrule
