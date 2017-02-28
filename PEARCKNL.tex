@@ -28,7 +28,7 @@ In addition to performance testing the kernel functions, we tested machine
   parallelized kernels.
 
 To accomplish our objectives, we developed a robust R benchmark for HPC
-  environments and used it to compare the performance of the new Xeon Phi-based 
+  environments and used it to compare the performance of the new Xeon Phi-based
   nodes of the Stampede 2 system with the standard Xeon-based nodes of the
   original Stampede system.
 The HPC benchmark performs microbenchmarking of compute-intensive dense linear
@@ -235,7 +235,7 @@ The \texttt{-xHost} option was applied to both Sandy Bridge builds, and the
 %  of parameters specific to each test.
 We configured multithreading of each microbenchmark through OpenMP and MKL
   environment variables.
-As recommended in the MKL developer's guide~\cite{intel:mkl2017} we set 
+As recommended in the MKL developer's guide~\cite{intel:mkl2017} we set
   \texttt{KMP\_AFFINITY}=$granularity=fine,compact,1,0$.
 We also disabled the dynamic thread adjustment controlled by
   \texttt{OMP\_DYNAMIC} and \texttt{KMP\_DYNAMIC} so that the scaling tests
@@ -247,7 +247,7 @@ We tested scalability of the microbenchmarks by increasing the number of MKL
 % JRM - This next sentece seems out of place; find a new place for it
 The performance tests on the Sandy Bridge nodes included the two Xeon Sandy
   Bridge processors, but did not include any co-processing by the Xeon Phi
-  coprocessor. 
+  coprocessor.
 % JRM - This sentence ought to be adjacent to the rest of the matrix size
 % descriptions 5 sentences down.
 Small matrix dimensions of size $2000$ and $4000$ were often sufficient to
@@ -311,7 +311,7 @@ We also provide the percentage of the maximum possible speedup, which we define
 Unless stated otherwise, the Sandy Bridge performance assessments are based on
   microbenchmarks built under the Intel 15 Update 2 bundle, and the Knights
   Landing performance assessments are based on microbenchmarks built under the
-  Intel 17 Update 1 bundle. 
+  Intel 17 Update 1 bundle.
 
 The Sandy Bridge nodes consistently outperformed the Knights Landing nodes when
   running the Cholesky factorization (Figure 1), dense linear solve (Figure 5),
@@ -385,7 +385,7 @@ The Knights Landing and Sandy Bridge nodes executing the matrix cross product
   respectively.
 The Knights Landing and Sandy Bridge nodes executing the matrix-matrix
   multiplication kernel achieved $43\%$ and $96\%$ of their maximum possible
-  speedups, respectively. 
+  speedups, respectively.
 
 The matrix-vector multiplication kernel on the Sandy Bridge nodes consistently
   outperformed the Knights Landing nodes for all tested matrix dimensions and
@@ -408,7 +408,7 @@ For matrix dimensions of $4000$ or more, the Knights Landing nodes were up to
   $6.32$ times faster than the Sandy Bridge nodes.
 The Knights Landing nodes achieved speedups of at most $28\%$ of the maximum
   possible, and the Sandy Bridge nodes achieved speedups of at most $38\%$ of
-  the maximum possible. 
+  the maximum possible.
 
 The singular value decomposition kernel exhibited similar performance
   (Figure 11).
@@ -417,7 +417,7 @@ For each tested matrix dimension of $2000$ or less, the Sandy Bridge nodes were
 For tested matrix dimensions of $4000$ or greater, the Knights Landing nodes
   were up to $4.25$ times as fast as those achieved on the Sandy Bridge nodes.
 The percentages of the maximum possible speedup achieved by the Knights Landing
-  and Sandy Bridge nodes were at most $23\%$ and $22\%$, respectively.  
+  and Sandy Bridge nodes were at most $23\%$ and $22\%$, respectively.
 
 We also tested the performance of the Cholesky factorization, dense linear
   solve, and matrix cross product kernels when run exclusively out of the
@@ -437,7 +437,7 @@ We conducted additional experiments with the Sandy Bridge nodes to determine if
 The dense linear solve and QR decomposition microbenchmark results showed little
   or no improvement over their Intel 15 Update 2 counterparts; however, the
   least squares fit kernel exhibited improved scalability beyond four threads
-  for moderate to large matrix dimensions (Figure 4).   
+  for moderate to large matrix dimensions (Figure 4).
 
 We performance tested the \texttt{nnet} function from the \textit{nnet} package
   and the \texttt{pam} function of the \textit{cluster} package to determine if
@@ -476,6 +476,144 @@ With $40005$ feature vectors, the Knights Landing nodes were $1.11$ times faster
   \caption{Training Parameters Used with Neural Network Training Benchmark}
   \label{tab:nnetParams}
   \begin{tabular}{lll}
+
+
+\section{The Body of The Paper}
+Typically, the body of a paper is organized into a hierarchical
+structure, with numbered or unnumbered headings for sections,
+subsections, sub-subsections, and even smaller sections.  The command
+\texttt{{\char'134}section} that precedes this paragraph is part of
+such a hierarchy.\footnote{This is a footnote.} \LaTeX\ handles the
+numbering and placement of these headings for you, when you use the
+appropriate heading commands around the titles of the headings.  If
+you want a sub-subsection or smaller part to be unnumbered in your
+output, simply append an asterisk to the command name.  Examples of
+both numbered and unnumbered headings will appear throughout the
+balance of this sample document.
+
+Because the entire article is contained in the \textbf{document}
+environment, you can indicate the start of a new paragraph with a
+blank line in your input file; that is why this sentence forms a
+separate paragraph.
+
+\subsection{Type Changes and {\itshape Special} Characters}
+
+We have already seen several typeface changes in this sample.  You can
+indicate italicized words or phrases in your text with the command
+\texttt{{\char'134}textit}; emboldening with the command
+\texttt{{\char'134}textbf} and typewriter-style (for instance, for
+computer code) with \texttt{{\char'134}texttt}.  But remember, you do
+not have to indicate typestyle changes when such changes are part of
+the \textit{structural} elements of your article; for instance, the
+heading of this subsection will be in a sans serif\footnote{Another
+  footnote here.  Let's make this a rather long one to see how it
+  looks.} typeface, but that is handled by the document class file.
+Take care with the use of\footnote{Another footnote.}  the
+curly braces in typeface changes; they mark the beginning and end of
+the text that is to be in the different typeface.
+
+You can use whatever symbols, accented characters, or non-English
+characters you need anywhere in your document; you can find a complete
+list of what is available in the \textit{\LaTeX\ User's Guide}
+\cite{Lamport:LaTeX}.
+
+\subsection{Math Equations}
+You may want to display math equations in three distinct styles:
+inline, numbered or non-numbered display.  Each of
+the three are discussed in the next sections.
+
+\subsubsection{Inline (In-text) Equations}
+A formula that appears in the running text is called an
+inline or in-text formula.  It is produced by the
+\textbf{math} environment, which can be
+invoked with the usual \texttt{{\char'134}begin\,\ldots{\char'134}end}
+construction or with the short form \texttt{\$\,\ldots\$}. You
+can use any of the symbols and structures,
+from $\alpha$ to $\omega$, available in
+\LaTeX~\cite{Lamport:LaTeX}; this section will simply show a
+few examples of in-text equations in context. Notice how
+this equation:
+\begin{math}
+  \lim_{n\rightarrow \infty}x=0
+\end{math},
+set here in in-line math style, looks slightly different when
+set in display style.  (See next section).
+
+\subsubsection{Display Equations}
+A numbered display equation---one set off by vertical space from the
+text and centered horizontally---is produced by the \textbf{equation}
+environment. An unnumbered display equation is produced by the
+\textbf{displaymath} environment.
+
+Again, in either environment, you can use any of the symbols
+and structures available in \LaTeX\@; this section will just
+give a couple of examples of display equations in context.
+First, consider the equation, shown as an inline equation above:
+\begin{equation}
+  \lim_{n\rightarrow \infty}x=0
+\end{equation}
+Notice how it is formatted somewhat differently in
+the \textbf{displaymath}
+environment.  Now, we'll enter an unnumbered equation:
+\begin{displaymath}
+  \sum_{i=0}^{\infty} x + 1
+\end{displaymath}
+and follow it with another numbered equation:
+\begin{equation}
+  \sum_{i=0}^{\infty}x_i=\int_{0}^{\pi+2} f
+\end{equation}
+just to demonstrate \LaTeX's able handling of numbering.
+
+\subsection{Citations}
+Citations to articles~\cite{bowman:reasoning,
+clark:pct, braams:babel, herlihy:methodology},
+conference proceedings~\cite{clark:pct} or maybe
+books \cite{Lamport:LaTeX, salas:calculus} listed
+in the Bibliography section of your
+article will occur throughout the text of your article.
+You should use BibTeX to automatically produce this bibliography;
+you simply need to insert one of several citation commands with
+a key of the item cited in the proper location in
+the \texttt{.tex} file~\cite{Lamport:LaTeX}.
+The key is a short reference you invent to uniquely
+identify each work; in this sample document, the key is
+the first author's surname and a
+word from the title.  This identifying key is included
+with each item in the \texttt{.bib} file for your article.
+
+The details of the construction of the \texttt{.bib} file
+are beyond the scope of this sample document, but more
+information can be found in the \textit{Author's Guide},
+and exhaustive details in the \textit{\LaTeX\ User's
+Guide} by Lamport~\shortcite{Lamport:LaTeX}.
+
+
+This article shows only the plainest form
+of the citation command, using \texttt{{\char'134}cite}.
+
+\subsection{Tables}
+Because tables cannot be split across pages, the best
+placement for them is typically the top of the page
+nearest their initial cite.  To
+ensure this proper ``floating'' placement of tables, use the
+environment \textbf{table} to enclose the table's contents and
+the table caption.  The contents of the table itself must go
+in the \textbf{tabular} environment, to
+be aligned properly in rows and columns, with the desired
+horizontal and vertical rules.  Again, detailed instructions
+on \textbf{tabular} material
+are found in the \textit{\LaTeX\ User's Guide}.
+
+Immediately following this sentence is the point at which
+Table~\ref{tab:freq} is included in the input file; compare the
+placement of the table here with the table in the printed
+output of this document.
+
+\begin{table}
+  \caption{Frequency of Special Characters}
+  \label{tab:freq}
+  \begin{tabular}{ccl}
+\end{tabular}
     \toprule
     Training parameters & Description & Value\\
     \midrule
@@ -486,7 +624,7 @@ With $40005$ feature vectors, the Knights Landing nodes were $1.11$ times faster
                         & the fit criterion does not decrease by a &\\
                         & factor of at least $(1-\mathrm{\texttt{reltol}})$ &\\
       \texttt{linout}   & Enables real-valued, linear outputs      & \texttt{TRUE}\\
-      \texttt{MaxNWts}  & The maximum allowable number of weights  & $4000$\\ 
+      \texttt{MaxNWts}  & The maximum allowable number of weights  & $4000$\\
     \bottomrule
   \end{tabular}
 \end{table*}
@@ -577,7 +715,7 @@ We developed a new R HPC benchmarking package consisting of microbenchmarks of
 The implementation of the benchmarks improves upon limitations of the few R
   benchmarks that have been developed to date, namely the inability to perform
   scalability studies over successively larger problem sizes and to
-  independently configure how each individual benchmark is executed.   
+  independently configure how each individual benchmark is executed.
 We obtained performance results running our HPC benchmark on both the Sandy
   Bridge and Knights Landing nodes of the Stampede supercomputer at the Texas
   Advanced Computing Center.
