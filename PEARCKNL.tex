@@ -2,6 +2,76 @@
 \section{Introduction}
 % TODO: Move sections 1 and 2 of white paper into introduction
 
+The increasing demand for high-performance cluster computing in data analysis, driven by
+increasing data set size and the computational complexity of analyzing large amounts of
+data, has rivaled that of scientific computing in recent years \cite{fox:bdBenchmarking,
+kouzes:paradigm}.  The large amounts of RAM per node, high storage capacity, and advanced
+processing capabilities of modern high-performance computing (HPC) clusters are an
+attractive option for data analysts to perform their computation given the large size of
+their data and the increasing emphasis on computationally demanding analytical tools like
+machine learning [3, 4, 5].  Depending on the nature of the analysis to be performed,
+analytics workflows may be implemented as concurrent processes on several nodes of a
+computing cluster with little or no coordination between them, or as highly coordinated
+parallel processes in which the nodes perform portions of the same computational task.
+Examples of the former type of analysis include Monte Carlo simulations and optimization
+problems that are solved for many different initial conditions to compute an optimal
+result.  An example of the latter type of analysis is the solution of large, sparse linear
+systems of such high order that the computation of the solution can be effectively
+parallelized across the nodes. Regardless of whether the workflow is implemented as
+concurrent or parallel processes, it is important for data analysts to have software
+environments at their disposal which can exploit the performance advantages of modern HPC
+clusters.  Data analysts have come to rely heavily on the open source R programming
+environment to manipulate and analyze their data.  The R programming environment provides
+a language, the R programming language, which was designed around statistical computing,
+and an interpreter for executing R programs [6].  The R language interpreter is
+implemented in the C programming language, and the functionality of the programming
+environment can be extended through packages that are commercially available or available
+as open source.  The ability to develop R packages in C means that developers can extend
+the functionality of the environment and achieve high performance.  This also gives the R
+interpreter the ability to link to external libraries optimized for performance on a given
+system.  As an example, the R environment can be compiled to dynamically link with
+optimized instances of the BLAS [7] and LAPACK [8] libraries for performing linear algebra
+computations.  Optimization of the R interpreter, its intrinsic functionality, and R
+packages for specific hardware architectures will be necessary for data analysts to take
+full advantage of the latest HPC clusters, and to obviate the need to reengineer their
+analysis workflows in another language. Performance benchmarks provide a way to assess the
+performance of software on a given computing platform and to compare performance of
+software across different platforms.  The performance benchmark results can also be used
+to prioritize software performance optimization efforts on emerging HPC systems.  One such
+system is the new Stampede 2 supercomputer cluster being installed at the Texas Advanced
+Computing Center (TACC).  The CPU used in the Stampede 2 system is the Intel Xeon Phi
+which is a many-core, vector processor with 68 cores and two 512-bit vector processing
+units per core, a sufficient deviation from the standard Xeon processors and Xeon Phi
+accelerators of the original Stampede system to necessitate a performance assessment of
+the R programming environment on both systems [9].  We developed an R performance
+benchmark to determine the single-node run-time performance of compute intensive linear
+algebra kernels that are common to many data analytics algorithms, and the run-time
+performance of machine learning functionality commonly implemented with linear algebra
+operations.  We then performed single-node strong scaling tests of the benchmark on both
+Stampede systems to determine problem sizes and numbers of threads for which the Stampede
+2 nodes were competitive or outperformed their predecessors.  It is our intention that the
+results be used to guide future performance optimization efforts of the R programming
+environment to increase the applicability of HPC clusters like the Stampede 2 system to
+compute-intensive data analysis. I.	The Need for a More Robust R Benchmark There are very
+few R performance benchmarks, and there is no R performance benchmark that has been peer
+reviewed and accepted as a standard.  The most common and robust benchmark is the R
+Benchmark [10] which runs fifteen different microbenchmarks covering matrix formation,
+matrix factorization, solving linear systems of equations, and sorting.  Other benchmarks
+like bench [10], for example, are microbenchmarks that focus on a few specific
+computational kernels in R, but they lack the coverage needed to comprehensively assess R
+performance in a high-performance computing environment. Although R Benchmark is the most
+robust benchmark publicly available, it lacks flexibility and it is focused only on
+testing intrinsic functionality while leaving the performance of packages included in the
+standard R distribution unassessed.  The benchmark is contained in a single R function
+which times each R operation or function to be performance tested, but there is no
+functionality to choose a specific operation or function to performance test.
+Furthermore, the size of the input data to each test is hardcoded and there is no way to
+loop over larger problem sizes as would be needed in scalability studies to test the
+effectiveness of parallelism.  Also, users of the benchmark cannot set the number of runs
+over which to average the run time of a specific function without changing the number of
+runs for all functions tested.  The monolithic structure of R Benchmark also prevents
+configuring the microbenchmarks to run concurrently in a cluster environment.
+
 
 \section{Methodology and Approach}
 % TODO: Methodology/approach section after introduction
@@ -29,7 +99,7 @@ In addition to performance testing the kernel functions, we tested machine
   parallelized kernels.
 
 To accomplish our objectives, we developed a robust R benchmark for HPC
-  environments and used it to compare the performance of the new Xeon Phi-based 
+  environments and used it to compare the performance of the new Xeon Phi-based
   nodes of the Stampede 2 system with the standard Xeon-based nodes of the
   original Stampede system.
 The HPC benchmark performs microbenchmarking of compute-intensive dense linear
@@ -230,7 +300,7 @@ The \texttt{-xHost} option was applied to both Sandy Bridge builds, and the
 %
 We configured multithreading of each microbenchmark through OpenMP and MKL
   environment variables.
-As recommended in the MKL developer's guide~\cite{intel:mkl2017} we set 
+As recommended in the MKL developer's guide~\cite{intel:mkl2017} we set
   \texttt{KMP\_AFFINITY}=$granularity=fine,compact,1,0$.
 We also disabled the dynamic thread adjustment controlled by
   \texttt{OMP\_DYNAMIC} and \texttt{KMP\_DYNAMIC} so that the scaling tests
@@ -244,6 +314,15 @@ The performance tests on the Sandy Bridge nodes included the two Xeon Sandy
   coprocessor. 
 Hyperthreading was not enabled on the Sandy Bridge processors, but it was
   enabled on the Knights Landing processors.
+  coprocessor.
+% JRM - This sentence ought to be adjacent to the rest of the matrix size
+% descriptions 5 sentences down.
+Small matrix dimensions of size $2000$ and $4000$ were often sufficient to
+  determine performance cross over points for the kernel functions where one
+  node type would begin to outperform the other given an increase in matrix
+  size.
+Larger matrices were useful for determining which kernels efficiently utilized a
+  large number of threads on the Knights Landing nodes.
 We observed no improvements in scalability by placing more than one thread on
   each core of the Knights Landing processors, but have included results for
   more than 68 threads for completeness.
@@ -306,7 +385,7 @@ We also provide the percentage of the maximum possible speedup, which we define
 Unless stated otherwise, the Sandy Bridge performance assessments are based on
   microbenchmarks built under the Intel 15 Update 2 bundle, and the Knights
   Landing performance assessments are based on microbenchmarks built under the
-  Intel 17 Update 1 bundle. 
+  Intel 17 Update 1 bundle.
 
 The Sandy Bridge nodes consistently outperformed the Knights Landing nodes when
   running the Cholesky factorization (Figure 1), dense linear solve (Figure 5),
@@ -380,7 +459,7 @@ The Knights Landing and Sandy Bridge nodes executing the matrix cross product
   respectively.
 The Knights Landing and Sandy Bridge nodes executing the matrix-matrix
   multiplication kernel achieved $43\%$ and $96\%$ of their maximum possible
-  speedups, respectively. 
+  speedups, respectively.
 
 The matrix-vector multiplication kernel on the Sandy Bridge nodes consistently
   outperformed the Knights Landing nodes for all tested matrix dimensions and
@@ -403,7 +482,7 @@ For matrix dimensions of $4000$ or more, the Knights Landing nodes were up to
   $6.32$ times faster than the Sandy Bridge nodes.
 The Knights Landing nodes achieved speedups of at most $28\%$ of the maximum
   possible, and the Sandy Bridge nodes achieved speedups of at most $38\%$ of
-  the maximum possible. 
+  the maximum possible.
 
 The singular value decomposition kernel exhibited similar performance
   (Figure 11).
@@ -412,7 +491,7 @@ For each tested matrix dimension of $2000$ or less, the Sandy Bridge nodes were
 For tested matrix dimensions of $4000$ or greater, the Knights Landing nodes
   were up to $4.25$ times as fast as those achieved on the Sandy Bridge nodes.
 The percentages of the maximum possible speedup achieved by the Knights Landing
-  and Sandy Bridge nodes were at most $23\%$ and $22\%$, respectively.  
+  and Sandy Bridge nodes were at most $23\%$ and $22\%$, respectively.
 
 We also tested the performance of the Cholesky factorization, dense linear
   solve, and matrix cross product kernels when run exclusively out of the
@@ -432,7 +511,7 @@ We conducted additional experiments with the Sandy Bridge nodes to determine if
 The dense linear solve and QR decomposition microbenchmark results showed little
   or no improvement over their Intel 15 Update 2 counterparts; however, the
   least squares fit kernel exhibited improved scalability beyond four threads
-  for moderate to large matrix dimensions (Figure 4).   
+  for moderate to large matrix dimensions (Figure 4).
 
 We performance tested the \texttt{nnet} function from the \textit{nnet} package
   and the \texttt{pam} function of the \textit{cluster} package to determine if
@@ -481,7 +560,7 @@ With $40005$ feature vectors, the Knights Landing nodes were $1.11$ times faster
                         & the fit criterion does not decrease by a &\\
                         & factor of at least $(1-\mathrm{\texttt{reltol}})$ &\\
       \texttt{linout}   & Enables real-valued, linear outputs      & \texttt{TRUE}\\
-      \texttt{MaxNWts}  & The maximum allowable number of weights  & $4000$\\ 
+      \texttt{MaxNWts}  & The maximum allowable number of weights  & $4000$\\
     \bottomrule
   \end{tabular}
 \end{table*}
@@ -572,7 +651,7 @@ We developed a new R HPC benchmarking package consisting of microbenchmarks of
 The implementation of the benchmarks improves upon limitations of the few R
   benchmarks that have been developed to date, namely the inability to perform
   scalability studies over successively larger problem sizes and to
-  independently configure how each individual benchmark is executed.   
+  independently configure how each individual benchmark is executed.
 We obtained performance results running our HPC benchmark on both the Sandy
   Bridge and Knights Landing nodes of the Stampede supercomputer at the Texas
   Advanced Computing Center.
