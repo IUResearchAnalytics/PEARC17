@@ -301,7 +301,7 @@ The \texttt{-xHost} option was applied to both Sandy Bridge builds, and the
 %  Keep matrix dimension and experiment parameter specifics
 %  in the results section (don't want this detail in Methodology and Approach)
 %
-We configured multithreading of each microbenchmark through OpenMP and MKL
+We configured the multithreading of each microbenchmark through OpenMP and MKL
   environment variables.
 As recommended in the MKL developer's guide~\cite{intel:mkl2017} we set
   \texttt{KMP\_AFFINITY}=$granularity=fine,compact,1,0$.
@@ -312,20 +312,8 @@ We also disabled the dynamic thread adjustment controlled by
 We tested scalability of the microbenchmarks by increasing the number of MKL
   threads through the environment variable \texttt{MKL\_NUM\_THREADS}.
 
-The performance tests on the Sandy Bridge nodes included the two Xeon Sandy
-  Bridge processors, but did not include any co-processing by the Xeon Phi
-  coprocessor. 
 Hyperthreading was not enabled on the Sandy Bridge processors, but it was
   enabled on the Knights Landing processors.
-  coprocessor.
-% JRM - This sentence ought to be adjacent to the rest of the matrix size
-% descriptions 5 sentences down.
-Small matrix dimensions of size $2000$ and $4000$ were often sufficient to
-  determine performance cross over points for the kernel functions where one
-  node type would begin to outperform the other given an increase in matrix
-  size.
-Larger matrices were useful for determining which kernels efficiently utilized a
-  large number of threads on the Knights Landing nodes.
 We observed no improvements in scalability by placing more than one thread on
   each core of the Knights Landing processors, but have included results for
   more than 68 threads for completeness.
@@ -334,9 +322,9 @@ The numbers of threads we tested on the Sandy Bridge nodes were:
   the Knights Landing nodes were:
   $1$, $2$, $4$, $8$, $16$, $34$, $66$, $68$, $136$, $204$, and $272$.
 Small matrix dimensions of size $2000$ and $4000$ were often sufficient to
-  determine performance cross over points for the matrix kernel functions where one
+  determine performance cross over points for the matrix kernels where one
   node type would begin to outperform the other given an increase in matrix
-  size.
+  dimension.
 Larger matrices were useful for determining which kernels efficiently utilized a
   large number of threads on the Knights Landing nodes.
 Apart from some exceptions, we tested the matrix kernels with
@@ -355,8 +343,10 @@ We attempted to run performance tests up to matrix dimensions of $30000$ and
 % JRM - Do we want to reference the spreadsheet?
 %The test results for each microbenchmark, matrix size, and number of threads are
 %  given in a spreadsheet accompanying this document.
+% JRM - This sentence might need to be reworked after the performance assessments
+% are redone.
 We included plots showing microbenchmark run-time and strong scaling performance
-  on Sandy Bridge and Knights Landing; we plotted results for
+  on Sandy Bridge and Knights Landing, and we plotted results for
   matrix dimensions that reveal when the two node types become competitive for
   a microbenchmark, or to highlight when a node type consistently outperforms
   its competitor.
@@ -365,13 +355,13 @@ In the plot legend entries, \textit{S1} indicates Sandy Bridge node performance
   and \textit{S2} indicates Knights Landing node performance; entries postfixed
   with a 15 or a 17 indicate tests were performed with the Intel 15 Update 2 or
   Intel 17 Update 1 compiler and MKL bundles, respectively.
-% JRM - This sentence is out of place move toward beginning of section
-In addition to the matrix kernels, we performance tested clustering and
-  neural network training functionality from the \textit{nnet} and
-  \textit{cluster} packages.
+% JRM - This sentence is out of place.  Move toward beginning of section, or delete
+%In addition to the matrix kernels, we performance tested clustering and
+%  neural network training functionality from the \textit{nnet} and
+%  \textit{cluster} packages.
 
 % JRM - This paragraph might belong in methodology
-After we executed a given microbenchmark for a matrix dimension and all numbers
+After we executed a matrix microbenchmark for a matrix dimension and all numbers
   of threads to be tested on a given node type, we determined the minimum run
   time over all tested numbers of threads.
 We computed the minimum run times in this manner for each combination of node
@@ -380,9 +370,9 @@ From these minimum values, we determined the fastest node type for each
   microbenchmark and matrix dimension so that we could quantify relative
   performance as the ratio of the minimum run time achieved by the slowest node
   to that achieved by the fastest node.
-In the microbenchmark performance assessments that follow, the assessments are
-  grouped by microbenchmarks that exhibited similar performance characteristics,
-  and we provide relative performance ratios over the tested matrix dimensions.
+In the performance assessments that follow, we grouped the assessments by microbenchmarks
+  that exhibited similar performance characteristics, and we provide relative performance
+  ratios over the tested matrix dimensions.
 We also provide the percentage of the maximum possible speedup, which we define
   as the speedup divided by the number of cores, achieved by each microbenchmark
   with the largest matrix tested.
@@ -391,6 +381,14 @@ Unless stated otherwise, the Sandy Bridge performance assessments are based on
   Landing performance assessments are based on microbenchmarks built under the
   Intel 17 Update 1 bundle.
 
+% JRM - Which plots should we include in the paper?  Perhaps 4-6 plots showing
+% performance disparities between the two systems for large and small matrix dimensions
+%
+% JRM - Do we want to include summary numbers and a brief comment on results for
+% each and every matrix kernel?
+%
+%
+% JRM - I think linear solve or Cholesky would be good to highlight
 The Sandy Bridge nodes consistently outperformed the Knights Landing nodes when
   running the Cholesky factorization (Figure 1), dense linear solve (Figure 5),
   and matrix determinant (Figure 7) kernels for the small matrix dimensions
@@ -415,6 +413,9 @@ The Sandy Bridge nodes achieved at most $65\%$, $81\%$, and $84\%$ of the
 The Knights Landing nodes achieved at most $38\%$, $48\%$, and $65\%$ of the
   maximum possible speedup for the same kernels and matrix dimensions.
 
+% JRM - Eigendecomposition and the QR have limited scalability because the parallel
+% algorithms have data dependencies that limit parallelism.  May one to use
+% at most one of these in the plots.
 The eigendecomposition kernel (Figure 2) performed up to $2.75$ times faster on
   the Sandy Bridge nodes than on the Knights Landing nodes for tested matrix
   dimensions of $8000$ or less.
