@@ -64,10 +64,10 @@ performance optimization efforts of the R programming environment to increase th
 applicability of HPC machines like Stampede 2 to compute-intensive data
 analysis.
 
-The remainder of this paper as organized as follows, in \S\ref{sec:Methodology} we cover the 
+The remainder of this paper as organized as follows, in \S\ref{sec:methodology} we cover the design goals and capabilites of a new HPC R benchmark and discuss the benchmarking strategy employed in the comparison between Stampede and Stampede 2. Section \ref{sec:results} presents highlights of results from the benchmarking carried out on the original Stampede and Stampede 2 machines, the implications and key lessons derived from these results are detailed in \S\ref{sec:discuss}. Finally, we present our conclusions and outline future work in section \ref{sec:future}.
 
 
-\section{Methodology and Approach}\label{sec:Methodology}
+\section{Methodology and Approach}\label{sec:methodology}
 % TODO: Methodology/approach section after introduction
   % Pull in from white paper section 3:
   %   1. focus on dense matrix, not sparse
@@ -309,7 +309,7 @@ The \texttt{-xHost} option was applied to both Sandy Bridge builds, and the
 
 % JRM - There is much more than results in this section.  Should it be
 % titled Experiments and Results, or should we move it into Methodology
-\section{Results}
+\section{Results} \label{sec:results}
 % Part c of white paper section 4 to be moved into results section
 %  Keep matrix dimension and experiment parameter specifics
 %  in the results section (don't want this detail in Methodology and Approach)
@@ -662,7 +662,7 @@ We reran the strong scaling test of the C driver several times for the smaller
   matrix dimensions to verify the results, with no appreciable change in the
   curves.
 
-\section{Discussion}
+\section{Discussion} \label{sec:discuss}
 We developed a new R HPC benchmarking package consisting of microbenchmarks of
   several computational kernels and benchmarks of machine learning functions
   from the R standard distribution.
@@ -753,7 +753,7 @@ If the performance of the \textit{nnet} and \textit{cluster} packages are an
 % \caption{This is a test strong scaling plot.}
 % \end{figure}
 
-\section{Future Work}
+\section{Conclusions and Future Work} \label{sec:future}
 % TODO: Move future work content from Discussion section into this section
 
 %\begin{acks}
