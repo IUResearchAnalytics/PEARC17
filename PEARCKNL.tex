@@ -427,6 +427,10 @@ For tested matrix dimensions of $20000$ or less, the Knights Landing nodes
   nodes achieved at most $17\%$ of the maximum possible speedup for the same
   matrix dimensions.
 
+% JRM - This kernel was problematic under SNB icc 15.0, but less so under icc
+% 17.0.  However, comparison with plots would require two plots and not add
+% much to the overall discussion.  Perhaps just a couple of summary sentences
+% are needed.
 The least squares fit kernel (Figure 3) experienced difficulties scaling beyond
   four threads on the Sandy Bridge nodes.
 Recall that the matrix dimensions in the case of the least squares fit are
@@ -444,6 +448,7 @@ Based on this analysis and the stagnant or degraded strong scaling shown in
   Figure 3, we concluded that the linear least squares fit kernel is not
   scalable beyond a few threads on either node type.
 
+% JRM - Hightlight matrix-matrix product
 The Knights Landing nodes were consistently competitive with or outperformed the
   Sandy Bridge nodes for all matrix dimensions and numbers of threads tested
   with the matrix cross product (Figure 6) and matrix-matrix multiplication
