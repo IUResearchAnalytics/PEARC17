@@ -51,7 +51,7 @@ Stampede 2. The latest Intel Xeon Phi processor (KNL) is a many-core, vector pro
 with up to 68 cores and two 512-bit vector processing units per core, a sufficient
 deviation from the standard Xeon processors and Xeon Phi accelerators of the original
 Stampede system to necessitate a performance assessment of the R programming environment
-on both systems \cite{tacc:stampedeGuide}.
+on both systems \cite{tacc:stampedeGuide}. While some work was done by both IU and TACC to optimize R to run on the previous generation of Xeon Phi, codenamed Knight's Corner (KNC), the number of real world R applications that could effectively make use of both the Xeon Sandy Bridge processors (SNB) and the KNC accelerators was vanishingly small. For this reason we focus our comparison of Stampde and Stampede 2 on comparing the KNL nodes and only the SNB portion of the Stampede nodes.
 
 We developed an R performance benchmark to determine the single-node run-time performance
 of compute intensive linear algebra kernels that are common to many data analytics
@@ -59,15 +59,15 @@ algorithms, and the run-time performance of machine learning functionality commo
 implemented with linear algebra operations.  We then performed single-node strong scaling
 tests of the benchmark on both Stampede systems to determine problem sizes and numbers of
 threads for which the Stampede 2 nodes were comparable to or outperformed their original
-Stampede counterpars.  It is our intention that the results be used to guide future
+Stampede counterparts.  It is our intention that the results be used to guide future
 performance optimization efforts of the R programming environment to increase the
 applicability of HPC machines like Stampede 2 to compute-intensive data
 analysis.
 
-The remainder of this paper as organized as follows, in \S\ref{sec:Methodology} we cover the 
+The remainder of this paper as organized as follows, in \S\ref{sec:methodology} we cover the design goals and capabilites of a new HPC R benchmark and discuss the benchmarking strategy employed in the comparison between Stampede and Stampede 2. Section \ref{sec:results} presents highlights of results from the benchmarking carried out on the original Stampede and Stampede 2 machines, the implications and key lessons derived from these results are detailed in \S\ref{sec:discuss}. Finally, we present our conclusions and outline future work in section \ref{sec:future}.
 
 
-\section{Methodology and Approach}\label{sec:Methodology}
+\section{Methodology and Approach}\label{sec:methodology}
 % TODO: Methodology/approach section after introduction
   % Pull in from white paper section 3:
   %   1. focus on dense matrix, not sparse
@@ -77,68 +77,68 @@ The remainder of this paper as organized as follows, in \S\ref{sec:Methodology} 
 % JRM - This paragraph might belong in the introduction
 
 \subsection{A robust HPC benchmark for R}
-There are very few R performance benchmarks,
-and there is no R performance benchmark that has been peer reviewed and accepted as a
-standard.  The most common and robust benchmark is the R Benchmark [10] which runs fifteen
-different microbenchmarks covering matrix formation, matrix factorization, solving linear
-systems of equations, and sorting.  Other benchmarks like bench [10], for example, are
-microbenchmarks that focus on a few specific computational kernels in R, but they lack the
-coverage needed to comprehensively assess R performance in a high-performance computing
-environment. Although R Benchmark is the most robust benchmark publicly available, it
-lacks flexibility and it is focused only on testing intrinsic functionality while leaving
-the performance of packages included in the standard R distribution unassessed.  The
-benchmark is contained in a single R function which times each R operation or function to
-be performance tested, but there is no functionality to choose a specific operation or
-function to performance test. Furthermore, the size of the input data to each test is
-hardcoded and there is no way to loop over larger problem sizes as would be needed in
-scalability studies to test the effectiveness of parallelism.  Also, users of the
-benchmark cannot set the number of runs over which to average the run time of a specific
-function without changing the number of runs for all functions tested.  The monolithic
-structure of R Benchmark also prevents configuring the microbenchmarks to run concurrently
-in a cluster environment.
 
-Our performance testing objectives were to determine the following: which
-  functions implemented multithreaded parallelism; the single-node
-  run time and strong scaling on both the Sandy Bridge and Knights
-  Landing nodes; and an estimate of the overhead incurred by R kernel functions
-  when compared to similar kernel functionality executed exclusively in C.
-Given that the kernel functions are used as components in many machine learning
-  and analytics algorithms, it was important for us to determine which kernel
-  functions performed poorly on the Xeon Phi architecture compared to their
-  performance on the Xeon Sandy Bridge architecture.
-Furthermore, it was worthwhile for us to run performance tests with
-  similar kernel functionality exclusively in C to determine the potential
-  for performance improvement of the wrapper functions which implement the
-  kernels.
-In addition to performance testing the kernel functions, we tested machine
-  learning package functions to determine if those functions leverage any
-  parallelized kernels.
+In our inital serach for a benchmark suite to use in our comparison of R performance on
+Stampede and Stampede 2, we found that there are very few R performance benchmarks, and
+there is no R performance benchmark that has been peer reviewed and accepted as a
+standard. The most common and robust benchmark is the R Benchmark
+\cite{urbanek:Rbenchmarks} which runs fifteen different microbenchmarks covering matrix
+formation, matrix factorization, solving linear systems of equations, and sorting. Other
+benchmarks like bench \cite{urbanek:Rbenchmarks}, for example, are microbenchmarks that
+focus on a few specific computational kernels in R, but they lack the coverage needed to
+comprehensively assess R performance in a high-performance computing environment. Although
+R Benchmark is the most robust benchmark publicly available, it lacks the flexibility of
+being able to easily adjust things like thread count and problem size, and it is focused
+only on testing intrinsic functionality while leaving the performance of packages included
+in the standard R distribution unassessed.  The benchmark is contained in a single R
+function which times each R operation or function to be performance tested, but there is
+no functionality to choose a specific operation or function to performance test.
+Furthermore, the size of the input data to each test is hardcoded and there is no way to
+loop over larger problem sizes as would be needed in scalability studies to test the
+effectiveness of parallelism. Also, users of the benchmark cannot set the number of runs
+over which to average the run time of a specific function without changing the number of
+runs for all functions tested. The monolithic structure of R Benchmark also prevents
+configuring the microbenchmarks to run concurrently in a cluster environment or to easily
+choose select microbenchmarks to run independently.
 
-To accomplish our objectives, we developed a robust R benchmark for HPC
-  environments and used it to compare the performance of the new Xeon Phi-based
-  nodes of the Stampede 2 system with the standard Xeon-based nodes of the
-  original Stampede system.
-The HPC benchmark performs microbenchmarking of compute-intensive dense linear
-  algebra kernels and packages that can utilize optimized linear algebra
-  kernels.
-We executed each microbenchmark with a wide range of problem dimensions and
-  thread counts to determine run time performance and scalability of the
-  underlying R functionality on each type of node, using strong scaling as the
-  metric to determine scalability for various thread counts.
+When designing the benchmark, we wanted to maintain flexibility and extensibility while
+still focusing in on the particular questions of interest for the comparison between
+Stampede and Stampede 2. In particular we wanted to identify which R functions either
+implemented multithreaded parallelism or could make use of underlying multithreaded
+libraries; intercompare single-node run times and strong scaling on both the Sandy Bridge
+and Knights Landing nodes; and be able to estimate the overhead incurred by R kernel
+functions compared to similar kernel functionality implemented in C. Given that the kernel
+functions are used as components in many machine learning and analytics algorithms, it was
+important for us to determine which kernel functions performed poorly on the KNL
+architecture compared to their performance on the SNB architecture. Furthermore, it was
+worthwhile for us to run performance tests with similar kernel functionality exclusively
+in C to determine the potential for performance improvement of the wrapper functions which
+implement the kernels. In addition to performance testing the kernel functions, we tested
+machine learning package functions to determine if and how those functions leverage any
+parallelized kernels.
+
+The HPC benchmark that we have developed performs microbenchmarking of compute-intensive
+dense linear algebra kernels and packages that can utilize optimized linear algebra
+kernels. We executed each microbenchmark with a wide range of problem dimensions and
+thread counts to determine run time performance and scalability of the underlying R
+functionality on each type of node, using strong scaling as the metric to determine
+scalability for various thread counts.
 % TODO: The sentence below indicates a goal not explicitly stated in the
 % white paper; we should find a place for it, but it doen't fit under
 % methodology.
 %It is our intention that the HPC benchmark also be used in performance
 %  optimization efforts.
-\subsection{A New R Benchmark for HPC Environments}
-We chose dense linear algebra kernels for inclusion in the benchmark
-  because they form the computational foundation of many numerical methods
-  frequently utilized in R applications.
-The dense linear algebra kernels we included in the benchmark are: Cholesky
-  factorization, eigendecomposition, linear least squares fit, dense linear
-  solve, matrix cross product, matrix determinant, matrix-matrix multiplication,
-  matrix-vector multiplication, QR factorization, and singular value
-  decomposition.
+We chose dense linear algebra kernels for inclusion in the benchmark because they form the
+computational foundation of many numerical methods frequently utilized in R applications.
+The dense linear algebra kernels we included in the benchmark are: Cholesky factorization,
+eigendecomposition, linear least squares fit, dense linear solve, matrix cross product,
+matrix determinant, matrix-matrix multiplication, matrix-vector multiplication, QR
+factorization, and singular value decomposition.
+
+% SM - At some point we need to point out that these all leverage MKL or the BLAS
+%libraries to some extent or another. The seleciton and configuration of your BLAS/LAPACK
+%library can make all the difference. We only used MKL though...
+
 %Many of these kernels are in \textit{R Benchmark}.
 % JRM - Omit the descriptions of the kernels and their applicability until
 % we know they won't push the paper length over the page limit
@@ -168,40 +168,33 @@ The dense linear algebra kernels we included in the benchmark are: Cholesky
 %The singular value decomposition, which decomposes a matrix into two unitary
 %  matrices and a diagonal matrix, is a powerful decomposition with many
 %  applications in data mining and machine learning~\cite{golub:matrix3, murphy:ml}.
-We also included microbenchmarks of neural network training and cluster
-  identification functions from the \textit{nnet} and \textit{cluster} packages,
-  respectively, that are included in the standard R distribution.
-The \texttt{nnet} function is used to train neural networks with a single hidden
-  layer~\cite{ripley:pattern96}, and the \texttt{pam} function, which implements
-  the partitioning around medoids algorithm~\cite{chu:kmedoids, reynolds:clustering},
-  is used to perform the cluster identification.
-We included benchmark tests of these packages because neural network training
-  and cluster identification can be implemented with computational kernels
-  tested in the benchmark.
-The neural network training benchmark trains a neural network on a set of
-  feature vectors drawn from a multivariate normal distribution to approximate
-  the probability density function from which the vectors were drawn.
-We chose to approximate a multivariate normal probability density function
-  because the training problem is easy to scale in both number of training
-  vectors and number of features.
-The clustering benchmark generates normally distributed clusters in an
-  $N$-dimensional, real-valued feature space where the mean of one cluster is
-  located at the origin and the means of two clusters are each located at
-  positions $-1$ and $1$ of each axis.
+We also included microbenchmarks of neural network training and cluster identification
+functions from the \textit{nnet} and \textit{cluster} packages, respectively, that are
+included in the standard R distribution. The \texttt{nnet} function is used to train
+neural networks with a single hidden layer~\cite{ripley:pattern96}, and the \texttt{pam}
+function, which implements the partitioning around medoids algorithm~\cite{chu:kmedoids,
+reynolds:clustering}, is used to perform the cluster identification. We included benchmark
+tests of these packages because neural network training and cluster identification can be
+implemented with computational kernels tested in the benchmark. The neural network
+training benchmark trains a neural network on a set of feature vectors drawn from a
+multivariate normal distribution to approximate the probability density function from
+which the vectors were drawn. We chose to approximate a multivariate normal probability
+density function because the training problem is easy to scale in both number of training
+vectors and number of features. The clustering benchmark generates normally distributed
+clusters in an $N$-dimensional, real-valued feature space where the mean of one cluster is
+located at the origin and the means of two clusters are each located at positions $-1$ and
+$1$ of each axis.
 
-We structured the HPC benchmark so that each kernel or package function is
-  tested within its own microbenchmark function.
-Table~\ref{tab:microbenchmarks} shows the kernels and package functions tested
-  by each microbenchmark.
-Each microbenchmark can be configured to compute run-time performance for
-  several problem sizes, where the run time with respect to each problem size
-  is computed as an average over a configurable number of runs -- enabling
-  users to test small problem sizes over a large number of runs to account
-  for operating system interference.
-Another advantage of implementing the microbenchmarks as separate R functions
-  is that they can be executed concurrently in cluster environments.
+We structured the HPC benchmark so that each kernel or package function is tested within
+its own microbenchmark function. Table~\ref{tab:microbenchmarks} shows the kernels and
+package functions tested by each microbenchmark. Each microbenchmark can be configured to
+compute run-time performance for several problem sizes, where the run time with respect to
+each problem size is computed as an average over a configurable number of runs -- enabling
+users to test small problem sizes over a large number of runs to account for operating
+system interference. Another advantage of implementing the microbenchmarks as separate R
+functions is that they can be executed concurrently in cluster environments.
 
-\begin{table*}
+\begin{table}
   \caption{HPC Microbenchmarks and Corresponding Kernel or Package Functions Tested}
   \label{tab:microbenchmarks}
   \begin{tabular}{ll}
@@ -222,98 +215,61 @@ Another advantage of implementing the microbenchmarks as separate R functions
     cluster identification       & \texttt{pam} \\
     \bottomrule
   \end{tabular}
-\end{table*}
-
-% JRM - Moved to first paragraph in Methodology section
-%\subsection{Performance Testing Objectives}
-%Our performance testing objectives were to determine the following: which
-%  functions implemented multithreaded parallelism; the single-node
-%  run time and strong scaling on both the Sandy Bridge and Knights
-%  Landing nodes; and an estimate of the overhead incurred by R kernel functions
-%  when compared to similar kernel functionality executed exclusively in C.
-%Given that the kernel functions are used as components in many machine learning
-%  and analytics algorithms, it was important for us to determine which kernel
-%  functions performed poorly on the Xeon Phi architecture compared to their
-%  performance on the Xeon Sandy Bridge architecture.
-%Furthermore, it was worthwhile for us to run performance tests with
-%  similar kernel functionality exclusively in C to determine the potential
-%  for performance improvement of the wrapper functions which implement the
-%  kernels.
-%In addition to performance testing the kernel functions, we tested the machine
-%  learning package functions to determine if those functions leverage any
-%  parallelized kernels.
+\end{table}
 
 \subsection{Description of Tested Systems}
-We conducted single-node performance tests on the Sandy Bridge and Knights
-  Landing compute nodes of the Stampede computing cluster.
-Each Sandy Bridge compute node is a Dell PowerEdge C8220z with two eight-core,
-  $2.7$~GHz ($3.5$~GHz turbo) Intel Xeon E5-2680 (Sandy Bridge architecture)
-  processors with $20$~MB of L2 cache each; $32$~GB of $1600$~MHz DDR3 RAM; and
-  a 61-core Intel Xeon Phi SE10P coprocessor.
-Each Knights Landing compute node is a Dell PowerEdge with a single 68-core,
-  $1.4$~GHz ($1.6$~GHz turbo) Intel Xeon Phi 7250 CPU (Knights Landing
-  architecture); $96$~GB of $2400$~MHz DDR4 RAM;
-  and $16$~GB of on-package Multi-Channel Dynamic Random Access Memory (MCDRAM)
-  with $400$~GB/s bandwidth.
-Each of the Xeon Phi cores has two 512-bit vector processing units which
-  support a fused multiply-add operation.
-The cores, which are grouped by tiles containing two cores and a shared
-  $1$~MB L2 cache~\cite{intel:xeonphi}, communicate with each other via a
-  two-dimensional mesh network to maintain cache consistency.
 
-The Xeon Phi CPU can be configured in various clustering modes to group the
-  tiles into quadrants or hemispheres to take advantage of data locality in
-  applications~\cite{vladimirov:knlModes}.
-The MCDRAM is high bandwidth memory that resides on the CPU package and can
-  operate in different modes which are determined at boot
-  time~\cite{vladimirov:knlModes, asai:mcdramKnl}.
-When the CPU is in flat mode, applications can either explicitly allocate memory
-  in MCDRAM, or they can be run from MCDRAM using the command line utility
-  \texttt{numactl} to launch the application.
-Programs executed with \texttt{numactl} allocate as much memory from
-  MCDRAM as is available; any additional memory needed by the program is
-  allocated in main memory.
-When the CPU is in cache mode, the MCDRAM acts as a level 3 cache, operating
-  transparently to applications; we tested all of the microbenchmarks in
-  cache mode and a few in flat mode to compare performance in each mode.
+We conducted single-node performance tests on the SNB and KNL compute nodes of the
+Stampede and Stampede 2 computing clusters, respectively. Each Sandy Bridge compute node
+is a Dell PowerEdge C8220z with two eight-core, $2.7$~GHz Intel Xeon
+E5-2680 (Sandy Bridge architecture) processors with $20$~MB of L2 cache each; $32$~GB of
+$1600$~MHz DDR3 RAM; and a 61-core Intel Xeon Phi SE10P coprocessor (KNC). Each Knights Landing
+compute node is a Dell PowerEdge with a single 68-core, $1.4$~GHz Intel
+Xeon Phi 7250 CPU (Knights Landing architecture); $96$~GB of $2400$~MHz DDR4 RAM; and
+$16$~GB of on-package Multi-Channel Dynamic Random Access Memory (MCDRAM) with $400$~GB/s
+bandwidth. Each of the Xeon Phi cores has two 512-bit vector processing units which
+support a fused multiply-add operation. The cores, which are grouped by tiles containing
+two cores and a shared $1$~MB L2 cache~\cite{intel:xeonphi}, communicate with each other
+via a two-dimensional mesh network to maintain cache consistency.
 
-We conducted the performance tests with the R programming environment version
-  3.2.1 which we downloaded from the Comprehensive R Archive Network (CRAN).
-On the Sandy Bridge nodes, which ran CentOS 6 (kernel
-  2.6.32-431.17.1.el6.x86\_64), we built the programming environment with
-  the Intel XE compiler versions 15.0 Update 2 (v. 15.0.2.164) and
-  17.0 Update 1 (v. 17.0.1.132), and we linked the resulting executables with
-  the parallel Intel Math Kernel Library (MKL) versions 11.2.2 and 2017 Update
-  1, respectively.
-On the Knights Landing nodes, which ran CentOS 7 (kernel
-  3.10.0-327.36.3.el7.xpps1\_1.4.1.3272.x86\_64), we built the programming
-  environment with the Intel XE compiler and linked with parallel MKL
-  version 17.0 Update 1.
+There are several different configuration options for the KNL architecture that are
+determined by settings in the BIOS and can only be changed at boot time. These are whether
+hyperthreading is enabled (when enabled there are four threads per core), the mode by
+which the MCDRAM is accessed, and how the tiles are clustered together to access both the
+MCDRAM and DDR4 RAM on cache misses~\cite{vladimirov:knlModes, asai:mcdramKnl}.  The
+available options for MCDRAM access are flat mode, cache mode, and hybrid mode.  When the
+KNL is in flat mode, applications can either explicitly allocate memory in MCDRAM via a
+library like \textit{memkind}, or they can be run from MCDRAM using the command line
+utility \texttt{numactl} to launch the application. Programs executed with
+\texttt{numactl} allocate as much memory from MCDRAM as is available; any additional
+memory needed by the program is allocated in main memory. When the CPU is in cache mode,
+the MCDRAM acts as a level 3 cache, operating transparently to applications. We tested all
+of the microbenchmarks in cache mode and a few in flat mode to compare performance in each
+mode. We did not run any benchmarks in hybrid mode.
+
+The KNL CPU can be configured in various clustering modes to group the tiles into
+quadrants or hemispheres to take advantage of data locality in
+applications~\cite{vladimirov:knlModes,}. The options for clustering are all-to-all,
+quadrant/hemisphere, and sub-numa clustering (SNC-2/SNC-4). All benchmarks were run in the
+quadrant clustering mode.
+
+We conducted the performance tests with the R programming environment version 3.2.1
+downloaded from the Comprehensive R Archive Network. On the SNB nodes, running CentOS 6
+(kernel 2.6.32-431.17.1.el6.x86\_64), we built the programming environment with the Intel
+XE compiler versions 15.0 Update 2 (v. 15.0.2.164) and 17.0 Update 1 (v. 17.0.1.132), and
+we linked the resulting executables with the parallel Intel Math Kernel Library (MKL)
+versions 11.2.2 and 2017 Update 1, respectively. On the KNL nodes, running CentOS 7
+(kernel 3.10.0-327.36.3.el7.xpps1\_1.4.1.3272.x86\_64), we built the programming
+environment with the Intel XE compiler and linked with parallel MKL version 17.0 Update 1.
 The \texttt{-xHost} option was applied to both Sandy Bridge builds, and the
-  \texttt{-xMIC\_AVX512} option was applied to the Knights Landing build to
-  utilize the vector instruction set.
+\texttt{-xMIC\_AVX512} option was applied to the Knights Landing build to utilize the
+vector instruction set. The \texttt{xMIC-AVX512} option is needed to select the AVX-512
+vector instruction set, the highest instruction set on Knights Landing, as the
+\texttt{xHost} option is not supported for Xeon Phi processors. We passed the following
+options to GNU Autoconf to generate shared R libraries and to link R with the MKL BLAS and
+LAPACK libraries: \texttt{--without-x}, \texttt{--enable-R-shlib},
+\texttt{--enable-shared}, \texttt{--with-blas}, and \texttt{--with-lapack}.
 
-%The compiler and MKL versions we used to build R on each system are given in
-%  Table IV.
-%Table V shows the compiling and linking options we used to build the R
-%  distribution for each type of compute node for we tested performance with.
-%The \texttt{xHost} option selects the highest instruction set available on the
-%  Sandy Bridge processor.
-%The \texttt{xMIC-AVX512} option is needed to select the AVX-512 vector
-%  instruction set, the highest instruction set on Knights Landing, as the
-%  \texttt{xHost} option is not supported for Xeon Phi processors.
-%We passed the following options to GNU Autoconf to generate shared R libraries
-%  and to link R with the MKL BLAS and LAPACK libraries: \texttt{--without-x},
-%  \texttt{--enable-R-shlib}, \texttt{--enable-shared}, \texttt{--with-blas},
-%  and \texttt{--with-lapack}.
-
-% JRM - There is much more than results in this section.  Should it be
-% titled Experiments and Results, or should we move it into Methodology
-\section{Results}
-% Part c of white paper section 4 to be moved into results section
-%  Keep matrix dimension and experiment parameter specifics
-%  in the results section (don't want this detail in Methodology and Approach)
-%
 We configured the multithreading of each microbenchmark through OpenMP and MKL
   environment variables.
 As recommended in the MKL developer's guide~\cite{intel:mkl2017} we set
@@ -353,6 +309,26 @@ We attempted to run performance tests up to matrix dimensions of $30000$ and
   $40000$ on the Sandy Bridge and Knights Landing nodes, respectively; however,
   some kernels could not be tested with these dimensions due to the memory
   capacity and internal size limitations imposed by R.
+
+
+
+
+%The compiler and MKL versions we used to build R on each system are given in
+%  Table IV.
+%Table V shows the compiling and linking options we used to build the R
+%  distribution for each type of compute node for we tested performance with.
+%The \texttt{xHost} option selects the highest instruction set available on the
+%  Sandy Bridge processor.
+
+
+% JRM - There is much more than results in this section.  Should it be
+% titled Experiments and Results, or should we move it into Methodology
+\section{Results} \label{sec:results}
+% Part c of white paper section 4 to be moved into results section
+%  Keep matrix dimension and experiment parameter specifics
+%  in the results section (don't want this detail in Methodology and Approach)
+%
+
 % JRM - Do we want to reference the spreadsheet?
 %The test results for each microbenchmark, matrix size, and number of threads are
 %  given in a spreadsheet accompanying this document.
@@ -667,7 +643,7 @@ We reran the strong scaling test of the C driver several times for the smaller
   matrix dimensions to verify the results, with no appreciable change in the
   curves.
 
-\section{Discussion}
+\section{Discussion} \label{sec:discuss}
 We developed a new R HPC benchmarking package consisting of microbenchmarks of
   several computational kernels and benchmarks of machine learning functions
   from the R standard distribution.
@@ -758,7 +734,7 @@ If the performance of the \textit{nnet} and \textit{cluster} packages are an
 % \caption{This is a test strong scaling plot.}
 % \end{figure}
 
-\section{Future Work}
+\section{Conclusions and Future Work} \label{sec:future}
 % TODO: Move future work content from Discussion section into this section
 
 %\begin{acks}
