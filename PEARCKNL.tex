@@ -2,81 +2,72 @@
 \section{Introduction}
 % TODO: Move sections 1 and 2 of white paper into introduction
 
-The Stampede 2 supercomputer at the Texas Advanced Computing Center (TACC) features the
-latest Intel Xeon Phi processors, codenamed Knight's Landing (KNL). Th Indiana University
-(IU) has  The increasing demand for high-performance cluster computing in data analysis,
-driven by increasing data set size and the computational complexity of analyzing large
-amounts of data, has rivaled that of scientific computing in recent years
-\cite{fox:bdBenchmarking, kouzes:paradigm}.  The large amounts of RAM per node, high
-storage capacity, and advanced processing capabilities of modern high-performance
-computing (HPC) clusters are an attractive option for data analysts to perform their
-computation given the large size of their data and the increasing emphasis on
-computationally demanding analytical tools like machine learning [3, 4, 5].  Depending on
-the nature of the analysis to be performed, analytics workflows may be implemented as
-concurrent processes on several nodes of a computing cluster with little or no
-coordination between them, or as highly coordinated parallel processes in which the nodes
-perform portions of the same computational task. Examples of the former type of analysis
-include Monte Carlo simulations and optimization problems that are solved for many
-different initial conditions to compute an optimal result.  An example of the latter type
-of analysis is the solution of large, sparse linear systems of such high order that the
+The increasing demand for high performance computing in data analysis, driven by
+increasing data sizes and computational complexity, has rivaled that of scientific
+computing in recent years \cite{fox:bdBenchmarking, kouzes:paradigm}. Many data analysts,
+researchers, and scientists are turning to HPC machines to help with algorithms and tools,
+such as machine learning, that are compuationally demanding and require large amounts of
+memory \cite{raj:hpcBigData}. Many of the characteristics of large scale machines (e.g.
+large amounts of RAM per node, high storage capacity, and advanced processing
+capabilities) appear very attractive to these researchers, however, challenges remain for
+many of the algorithms to make optimal use of the hardware \cite{lee:model}. Depending on
+the nature of the analysis to be performed, analytics workflows may be carried out as many
+independent concurrent processes requiring little or no coordination between them, or as
+highly coordinated parallel processes in which the processes perform portions of the same
+computational task. Examples of the former type of analysis include Monte Carlo
+simulations and optimization problems with a parameter sweep through many different
+initial conditions to compute an optimal result.  An example of the latter type of
+analysis is the solution of large, sparse linear systems of such high order that the
 computation of the solution can be effectively parallelized across the nodes. Regardless
-of whether the workflow is implemented as concurrent or parallel processes, it is
-important for data analysts to have software environments at their disposal which can
-exploit the performance advantages of modern HPC clusters.  Data analysts have come to
-rely heavily on the open source R programming environment to manipulate and analyze their
-data.  The R programming environment provides a language, the R programming language,
-which was designed around statistical computing, and an interpreter for executing R
-programs [6].  The R language interpreter is implemented in the C programming language,
-and the functionality of the programming environment can be extended through packages that
-are commercially available or available as open source.  The ability to develop R packages
-in C means that developers can extend the functionality of the environment and achieve
-high performance.  This also gives the R interpreter the ability to link to external
-libraries optimized for performance on a given system.  As an example, the R environment
-can be compiled to dynamically link with optimized instances of the BLAS [7] and LAPACK
-[8] libraries for performing linear algebra computations.  Optimization of the R
-interpreter, its intrinsic functionality, and R packages for specific hardware
-architectures will be necessary for data analysts to take full advantage of the latest HPC
-clusters, and to obviate the need to reengineer their analysis workflows in another
-language. Performance benchmarks provide a way to assess the performance of software on a
-given computing platform and to compare performance of software across different
-platforms.  The performance benchmark results can also be used to prioritize software
-performance optimization efforts on emerging HPC systems.  One such system is the new
-Stampede 2 supercomputer cluster being installed at the Texas Advanced Computing Center
-(TACC).  The CPU used in the Stampede 2 system is the Intel Xeon Phi which is a many-core,
-vector processor with 68 cores and two 512-bit vector processing units per core, a
-sufficient deviation from the standard Xeon processors and Xeon Phi accelerators of the
-original Stampede system to necessitate a performance assessment of the R programming
-environment on both systems [9].  We developed an R performance benchmark to determine the
-single-node run-time performance of compute intensive linear algebra kernels that are
-common to many data analytics algorithms, and the run-time performance of machine learning
-functionality commonly implemented with linear algebra operations.  We then performed
-single-node strong scaling tests of the benchmark on both Stampede systems to determine
-problem sizes and numbers of threads for which the Stampede 2 nodes were competitive or
-outperformed their predecessors.  It is our intention that the results be used to guide
-future performance optimization efforts of the R programming environment to increase the
-applicability of HPC clusters like the Stampede 2 system to compute-intensive data
-analysis. I.	The Need for a More Robust R Benchmark There are very few R performance
-benchmarks, and there is no R performance benchmark that has been peer reviewed and
-accepted as a standard.  The most common and robust benchmark is the R Benchmark [10]
-which runs fifteen different microbenchmarks covering matrix formation, matrix
-factorization, solving linear systems of equations, and sorting.  Other benchmarks like
-bench [10], for example, are microbenchmarks that focus on a few specific computational
-kernels in R, but they lack the coverage needed to comprehensively assess R performance in
-a high-performance computing environment. Although R Benchmark is the most robust
-benchmark publicly available, it lacks flexibility and it is focused only on testing
-intrinsic functionality while leaving the performance of packages included in the standard
-R distribution unassessed.  The benchmark is contained in a single R function which times
-each R operation or function to be performance tested, but there is no functionality to
-choose a specific operation or function to performance test. Furthermore, the size of the
-input data to each test is hardcoded and there is no way to loop over larger problem sizes
-as would be needed in scalability studies to test the effectiveness of parallelism.  Also,
-users of the benchmark cannot set the number of runs over which to average the run time of
-a specific function without changing the number of runs for all functions tested.  The
-monolithic structure of R Benchmark also prevents configuring the microbenchmarks to run
-concurrently in a cluster environment.
+of whether the workflow is implemented as independent concurrent or coordinated parallel
+processes, it is important for data analysts to have software environments at their
+disposal which can exploit the performance advantages of modern HPC machines.
+
+Data analysts have come to rely heavily on the open source R programming environment to
+manipulate and analyze their data. The R programming environment provides a language and
+an interpreter designed around statistical computing \cite{ihaka:R}. The R language
+interpreter is implemented in the C programming language, and the functionality of the
+programming environment can be extended through packages that are commercially available
+or available as open source. The ability to develop R packages in C means that developers
+can extend the functionality of the environment and achieve high performance. This also
+gives the R interpreter the flexability to link to external libraries optimized for
+performance on a given system. As an example, the R environment can be compiled to
+dynamically link with optimized instances of the BLAS \cite{dongarra:1990blas} and LAPACK
+\cite{hammarling:1988blas} libraries for performing linear algebra computations.
+Optimization of the R interpreter, its intrinsic functionality, and R packages for
+specific hardware architectures will be necessary for data analysts to take full advantage
+of the latest HPC clusters, and to obviate the need to reengineer their analysis workflows
+in another language.
+
+A way to assess the performance of software on a given computing platform and intercompare
+performance across different platforms is through benchmarking. Benchmark results can also
+be used to prioritize software performance optimization efforts on emerging HPC systems.
+One such system is the Stampede 2 supercomputer at the Texas Advanced Computing Center
+(TACC), which features the latest Intel Xeon Phi processors, codenamed Knight's Landing
+(KNL). TACC and  Indiana University (IU) worked together on the Stampede project to
+improve performance and scalilbity of applications using the R language on the original
+Stampede machine. However, the original Stampde machine has a few key differences from
+Stampede 2. The latest Intel Xeon Phi processor (KNL) is a many-core, vector processor
+with up to 68 cores and two 512-bit vector processing units per core, a sufficient
+deviation from the standard Xeon processors and Xeon Phi accelerators of the original
+Stampede system to necessitate a performance assessment of the R programming environment
+on both systems \cite{tacc:stampedeGuide}.
+
+We developed an R performance benchmark to determine the single-node run-time performance
+of compute intensive linear algebra kernels that are common to many data analytics
+algorithms, and the run-time performance of machine learning functionality commonly
+implemented with linear algebra operations.  We then performed single-node strong scaling
+tests of the benchmark on both Stampede systems to determine problem sizes and numbers of
+threads for which the Stampede 2 nodes were comparable to or outperformed their original
+Stampede counterpars.  It is our intention that the results be used to guide future
+performance optimization efforts of the R programming environment to increase the
+applicability of HPC machines like Stampede 2 to compute-intensive data
+analysis.
+
+The remainder of this paper as organized as follows, in \S\ref{sec:Methodology} we cover the 
 
 
-\section{Methodology and Approach}
+\section{Methodology and Approach}\label{sec:Methodology}
 % TODO: Methodology/approach section after introduction
   % Pull in from white paper section 3:
   %   1. focus on dense matrix, not sparse
@@ -84,6 +75,28 @@ concurrently in a cluster environment.
   %   3. emphasize what we were getting at: SNB vs. KNL performance
   %      for similar thread counts and scalability
 % JRM - This paragraph might belong in the introduction
+
+\subsection{A robust HPC benchmark for R}
+There are very few R performance benchmarks,
+and there is no R performance benchmark that has been peer reviewed and accepted as a
+standard.  The most common and robust benchmark is the R Benchmark [10] which runs fifteen
+different microbenchmarks covering matrix formation, matrix factorization, solving linear
+systems of equations, and sorting.  Other benchmarks like bench [10], for example, are
+microbenchmarks that focus on a few specific computational kernels in R, but they lack the
+coverage needed to comprehensively assess R performance in a high-performance computing
+environment. Although R Benchmark is the most robust benchmark publicly available, it
+lacks flexibility and it is focused only on testing intrinsic functionality while leaving
+the performance of packages included in the standard R distribution unassessed.  The
+benchmark is contained in a single R function which times each R operation or function to
+be performance tested, but there is no functionality to choose a specific operation or
+function to performance test. Furthermore, the size of the input data to each test is
+hardcoded and there is no way to loop over larger problem sizes as would be needed in
+scalability studies to test the effectiveness of parallelism.  Also, users of the
+benchmark cannot set the number of runs over which to average the run time of a specific
+function without changing the number of runs for all functions tested.  The monolithic
+structure of R Benchmark also prevents configuring the microbenchmarks to run concurrently
+in a cluster environment.
+
 Our performance testing objectives were to determine the following: which
   functions implemented multithreaded parallelism; the single-node
   run time and strong scaling on both the Sandy Bridge and Knights
@@ -725,20 +738,20 @@ If the performance of the \textit{nnet} and \textit{cluster} packages are an
   likely need to be vectorized and either parallelized or restructured to rely
   as much as possible on parallelized computational kernels.
 
-\begin{figure}
-\includegraphics[height=2in, width=2.5in]{dual}
-\caption{This is a test dual plot.}
-\end{figure}
-
-\begin{figure}
-\includegraphics[height=2in, width=2.5in]{time}
-\caption{This is a test timings plot.}
-\end{figure}
-
-\begin{figure}
-\includegraphics[height=2in, width=2.5in]{scaling}
-\caption{This is a test strong scaling plot.}
-\end{figure}
+% \begin{figure}
+% \includegraphics[height=2in, width=2.5in]{dual}
+% \caption{This is a test dual plot.}
+% \end{figure}
+%
+% \begin{figure}
+% \includegraphics[height=2in, width=2.5in]{time}
+% \caption{This is a test timings plot.}
+% \end{figure}
+%
+% \begin{figure}
+% \includegraphics[height=2in, width=2.5in]{scaling}
+% \caption{This is a test strong scaling plot.}
+% \end{figure}
 
 \section{Future Work}
 % TODO: Move future work content from Discussion section into this section
@@ -748,3 +761,6 @@ If the performance of the \textit{nnet} and \textit{cluster} packages are an
 %  See also \grantsponsor and \grantnum commands in acmguide.pdf
 %
 %\end{acks}
+
+\bibliographystyle{ACM-Reference-Format}
+\bibliography{PEARCKNL}
