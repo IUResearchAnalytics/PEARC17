@@ -253,7 +253,7 @@ applications~\cite{vladimirov:knlModes,}. The options for clustering are all-to-
 quadrant/hemisphere, and sub-numa clustering (SNC-2/SNC-4). All benchmarks were run in the
 quadrant clustering mode.
 
-We conducted the performance tests with the R programming environment version 3.2.1
+Performance tests were conducted with the R programming environment version 3.2.1
 downloaded from the Comprehensive R Archive Network. On the SNB nodes, running CentOS 6
 (kernel 2.6.32-431.17.1.el6.x86\_64), we built the programming environment with the Intel
 XE compiler versions 15.0 Update 2 (v. 15.0.2.164) and 17.0 Update 1 (v. 17.0.1.132), and
@@ -270,45 +270,37 @@ options to GNU Autoconf to generate shared R libraries and to link R with the MK
 LAPACK libraries: \texttt{--without-x}, \texttt{--enable-R-shlib},
 \texttt{--enable-shared}, \texttt{--with-blas}, and \texttt{--with-lapack}.
 
-We configured the multithreading of each microbenchmark through OpenMP and MKL
-  environment variables.
-As recommended in the MKL developer's guide~\cite{intel:mkl2017} we set
-  \texttt{KMP\_AFFINITY}=$granularity=fine,compact,1,0$.
-We also disabled the dynamic thread adjustment controlled by
-  \texttt{OMP\_DYNAMIC} and \texttt{KMP\_DYNAMIC} so that the scaling tests
-  could be conducted
-  ~\cite{intel:cpp2015, intel:cpp2017, intel:mkl11_2, intel:mkl2017}.
-We tested scalability of the microbenchmarks by increasing the number of MKL
-  threads through the environment variable \texttt{MKL\_NUM\_THREADS}.
+The threading environment of each microbenchmark was configured through OpenMP and MKL
+environment variables. As recommended in the MKL developer's guide~\cite{intel:mkl2017}
+\texttt{KMP\_AFFINITY} was set to \texttt{KMP\_AFFINITY}=$granularity=fine,compact,1,0$.
+We also disabled the dynamic thread adjustment controlled by \texttt{OMP\_DYNAMIC} and
+\texttt{KMP\_DYNAMIC} so that the scaling tests could be conducted ~\cite{intel:cpp2015,
+intel:cpp2017, intel:mkl11_2, intel:mkl2017}. The scalability of the microbenchmarks was
+tested by increasing the number of MKL threads through the environment variable
+\texttt{MKL\_NUM\_THREADS}.
 
-Hyperthreading was not enabled on the Sandy Bridge processors, but it was
-  enabled on the Knights Landing processors.
-We observed no improvements in scalability by placing more than one thread on
-  each core of the Knights Landing processors, but have included results for
-  more than 68 threads for completeness.
-The numbers of threads we tested on the Sandy Bridge nodes were:
-  $1$, $2$, $4$, $8$, $12$, and $16$; and the numbers of threads we tested on
-  the Knights Landing nodes were:
-  $1$, $2$, $4$, $8$, $16$, $34$, $66$, $68$, $136$, $204$, and $272$.
-Small matrix dimensions of size $2000$ and $4000$ were often sufficient to
-  determine performance cross over points for the matrix kernels where one
-  node type would begin to outperform the other given an increase in matrix
-  dimension.
-Larger matrices were useful for determining which kernels efficiently utilized a
-  large number of threads on the Knights Landing nodes.
-Apart from some exceptions, we tested the matrix kernels with
-  square matrices having the following row dimensions $N$:
-  $1000$, $2000$, $4000$, $8000$, $10000$, $15000$, $20000$, and $40000$; in the
-  case of the least squares fit kernel, the matrix dimensions were
-  $2N \times N/2$ for the same values of $N$.
-For each combination of matrix dimension and number of threads for a given
-  microbenchmark, we collected the run time and computed the strong scaling as
-  the ratio of the run time of the microbenchmark to the run time of the
-  microbenchmark with one thread.
-We attempted to run performance tests up to matrix dimensions of $30000$ and
-  $40000$ on the Sandy Bridge and Knights Landing nodes, respectively; however,
-  some kernels could not be tested with these dimensions due to the memory
-  capacity and internal size limitations imposed by R.
+Hyperthreading was not enabled on the SNB processors, but it was enabled on the KNL
+processors. We observed no improvements in scalability by placing more than one thread on
+each core of the KNL processors, but have included results for more than 68 threads for
+completeness. In fact, as shown in figure \ref{fig:scaling}, increasing the number of
+threads beyond the number of physical cores actually has a detrimental effect on
+performance. The thread counts tested on the SNB nodes were: $1$, $2$, $4$, $8$, $12$, and
+$16$; and the thread counts tested on the KNL nodes were: $1$, $2$, $4$, $8$, $16$, $34$,
+$66$, $68$, $136$, $204$, and $272$. Small matrix dimensions of size $2000$ and $4000$
+were often sufficient to determine performance cross over points for the matrix kernels
+where one node type would begin to outperform the other given an increase in matrix
+dimension. Larger matrices were useful for determining which kernels efficiently utilized
+a large number of threads on the Knights Landing nodes. Apart from some exceptions, we
+tested the matrix kernels with square matrices having the following row dimensions $N$:
+$1000$, $2000$, $4000$, $8000$, $10000$, $15000$, $20000$, and $40000$; in the case of the
+least squares fit kernel, the matrix dimensions were $2N \times N/2$ for the same values
+of $N$. For each combination of matrix dimension and number of threads for a given
+microbenchmark, we collected the run time and computed the strong scaling as the ratio of
+the run time of the microbenchmark to the run time of the microbenchmark with a single
+thread. We attempted to run performance tests up to matrix dimensions of $30000$ and
+$40000$ on the Sandy Bridge and Knights Landing nodes, respectively; however, some kernels
+could not be tested with these dimensions due to the memory capacity and internal size
+limitations imposed by R.
 
 We chose to configure several parameters to the \texttt{nnet} function so that
   the several iterations of the underlying solver would be required to optimize
