@@ -228,7 +228,7 @@ plot_multi <- function(results, kernelNames, titleStrTime, titleStrScaling, pdfB
   # Plot strong scaling
   legendEntries <- list()
 
-  pdf(file=pdfScalingFile, height=7.0, width=9.0)
+  pdf(file=pdfScalingFile)
 
   plot(knlScalings[[1]], type="o", pch=knlPch[1], lty=1, ylim=scalingLimits, col="black", xlab="", ylab="", las=1, cex=pointScaleFactor, cex.axis=fontScaleFactor)
   legendEntries[[1]] <- sprintf("KNL scaling - %s", kernelNames[1]) 
@@ -246,7 +246,7 @@ plot_multi <- function(results, kernelNames, titleStrTime, titleStrScaling, pdfB
      }
   }
 
-  legend("topleft", legend=legendEntries, pch=legendPch, lty=legendLty)
+  legend("topright", legend=legendEntries, pch=legendPch, lty=legendLty)
   title(main=titleStrScaling, col.main="black", font.main=1, line=0.5, cex.main=fontScaleFactor) 
   dev.off()
 
@@ -256,7 +256,7 @@ plot_multi <- function(results, kernelNames, titleStrTime, titleStrScaling, pdfB
 plot_example <- function() {
    excelFile <- "matrix.xlsx"
    numSheets <- 2
-   maxNumThreads <- 272
+   maxNumThreads <- 68
    kernelNames <- c("matrix cross product", "mat. mat. mult.")
    titleStr <- "Matrix cross product and matrix-matrix multiplication (N=20000)"
    pdfFile <- "./matrix.pdf"
@@ -268,7 +268,7 @@ plot_example <- function() {
 plot_chol_solve <- function() {
    excelFile <- "./chol_solve_20000.xlsx"
    numSheets <- 2
-   maxNumThreads <- 68
+   maxNumThreads <- 68 
 
    kernelNames <- c("Cholesky fact.", "linear solve")
    titleStrTime <- "Run time of Cholesky factorization and linear solve (N=20000)"
@@ -283,12 +283,12 @@ plot_chol_solve <- function() {
 plot_cross_matmat <- function() {
    excelFile <- "./cross_matmat_20000.xlsx"
    numSheets <- 2
-   maxNumThreads <- 272
+   maxNumThreads <- 68
 
    kernelNames <- c("matrix cross prod.", "matrix-matrix mult.")
    titleStrTime <- "Run time of matrix cross product and matrix-matrix mult. (N=20000)"
    titleStrScaling <- "Strong scaling of matrix cross product and matrix-matrix mult. (N=20000)"
-   pdfBaseFileName <- "cross_matmat_20000_272"
+   pdfBaseFileName <- "cross_matmat_20000_68"
    results <- read_sheet_data(excelFile, numSheets, maxNumThreads)
    plot_multi(results, kernelNames, titleStrTime, titleStrScaling, pdfBaseFileName)
 

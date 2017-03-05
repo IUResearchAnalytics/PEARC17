@@ -389,10 +389,12 @@ The plot of strong scaling shows results for up to $272$ threads on the KNL
 \begin{figure}
 \includegraphics[height=\columnwidth, width=\columnwidth]{chol_solve_20000_68-rt.pdf}
 \caption{Run time of Cholesky factorization and linear solve kernels.}
+\label{fig:cholSolveTime}
 \end{figure}
 \begin{figure}
 \includegraphics[height=\columnwidth, width=\columnwidth]{chol_solve_20000_272-ss.pdf}
 \caption{Strong scaling of Cholesky factorization and linear solve kernels.}
+\label{fig:cholSolveScale}
 \end{figure}
 %\begin{figure}
 %\centering
@@ -458,8 +460,19 @@ The KNL and SNB nodes executing the matrix cross product kernel achieved $51\%$
   and $84\%$ of their maximum possible speedups, respectively.
 The KNL and SNB nodes executing the matrix-matrix multiplication kernel achieved
   $43\%$ and $96\%$ of their maximum possible speedups, respectively.
+Performance results for $N=20000$ are given in Figures~\ref{fig:crossMatmatTime}
+  and \ref{fig:crossMatmatScale}.
+\begin{figure}
+\includegraphics[height=\columnwidth, width=\columnwidth]{cross_matmat_20000_68-rt.pdf}
+\caption{Run time of matrix cross product and multiplication kernels.}
+\label{fig:crossMatmatTime}
+\end{figure}
+\begin{figure}
+\includegraphics[height=\columnwidth, width=\columnwidth]{cross_matmat_20000_272-ss.pdf}
+\caption{Strong scaling of matrix cross product and multiplication kernels.}
+\label{fig:crossMatmatScale}
+\end{figure}
 
-% matvec
 The matrix-vector multiplication kernel on the SNB nodes consistently
   outperformed the KNL nodes for all tested matrix dimensions and numbers of
   threads.
@@ -513,10 +526,6 @@ The linear solve and QR decomposition microbenchmark results showed little
 We performance tested the \texttt{nnet} function from the \textit{nnet} package
   and the \texttt{pam} function of the \textit{cluster} package to determine if
   those capabilities were parallelized.
-We chose the neural network training parameters listed in
-  Table~\ref{tab:nnetParams} to performance test the \texttt{nnet} function
-  because they required the underlying solver to perform several iterations to
-  achieve the required convergence.
 Our tests revealed that neither of the package functions was parallelized, as
   was indicated by the run times and the analysis tools we used to determine if
   multiple threads were being created.
