@@ -131,7 +131,7 @@ scalability for various thread counts.
 We chose dense linear algebra kernels for inclusion in the benchmark because they form the
 computational foundation of many numerical methods frequently utilized in R applications.
 The dense linear algebra kernels we included in the benchmark are: Cholesky factorization,
-eigendecomposition, linear least squares fit, dense linear solve, matrix cross product,
+eigendecomposition, linear least squares fit, linear solve with multiple right hand sides, matrix cross product,
 matrix determinant, matrix-matrix multiplication, matrix-vector multiplication, QR
 factorization, and singular value decomposition.
 
@@ -204,7 +204,7 @@ functions is that they can be executed concurrently in cluster environments.
     Cholesky factorization       & \texttt{chol} \\
     eigendecomposition           & \texttt{eigen} \\
     linear least squares fit     & \texttt{lsfit} \\
-    dense linear solve           & \texttt{solve} \\
+    linear solve w/ multiple r.h.s. & \texttt{solve} \\
     matrix cross product         & \texttt{crossprod} \\
     matrix determinant           & \texttt{determinant} \\
     matrix-matrix multiplication & $\%$$*$$\%$ \\
@@ -293,7 +293,7 @@ dimension. Larger matrices were useful for determining which kernels efficiently
 a large number of threads on the Knights Landing nodes. Apart from some exceptions, we
 tested the matrix kernels with square matrices having the following row dimensions $N$:
 $1000$, $2000$, $4000$, $8000$, $10000$, $15000$, $20000$, and $40000$; in the case of the
-least squares fit kernel, the matrix dimensions were $2N \times N/2$ for the same values
+linear least squares fit kernel, the matrix dimensions were $2N \times N/2$ for the same values
 of $N$. For each combination of matrix dimension and number of threads for a given
 microbenchmark, we collected the run time and computed the strong scaling as the ratio of
 the run time of the microbenchmark to the run time of the microbenchmark with a single
@@ -317,21 +317,6 @@ The \texttt{pam} function was executed with default parameters.
 % JRM - Do we want to reference the spreadsheet?
 %The test results for each microbenchmark, matrix size, and number of threads are
 %  given in a spreadsheet accompanying this document.
-% JRM - revisit this
-%We included plots showing microbenchmark run-time and strong scaling performance
-%  on the KNL and SNB nodes, and we plotted results for
-%  matrix dimensions that reveal when the two node types become competitive for
-%  a microbenchmark, or to highlight when a node type consistently outperforms
-%  its competitor.
-%In the results that follow, \textit{KNL} indicates Sandy Bridge node performance
-%  and \textit{S2} indicates Knights Landing node performance; entries postfixed
-%  with a 15 or a 17 indicate tests were performed with the Intel 15 Update 2 or
-%  Intel 17 Update 1 compiler and MKL bundles, respectively.
-% JRM - This sentence is out of place.  Move toward beginning of section, or delete
-%In addition to the matrix kernels, we performance tested clustering and
-%  neural network training functionality from the \textit{nnet} and
-%  \textit{cluster} packages.
-
 After we executed a matrix microbenchmark for a matrix dimension and all numbers
   of threads to be tested on a given node type, we determined the minimum run
   time over all tested numbers of threads.
@@ -351,14 +336,7 @@ Unless stated otherwise, the SNB performance assessments are based on
   microbenchmarks built under the Intel 15 Update 2 bundle, and the KNL
   performance assessments are based on microbenchmarks built under the Intel 17
   Update 1 bundle.
-% JRM - I think linear solve or Cholesky would be good to highlight
-% JRM - Need to spcify that the linear solve is with multiple right hand
-% sides in the methodology section
-%The SNB nodes consistently outperformed the KNL nodes when
-%  running the Cholesky factorization, linear solve,
-%  and matrix determinant kernels for the small matrix dimensions
-%  tested and with sixteen or fewer threads, performing up to two times
-%  faster than KNL nodes.
+
 Comparing the best run times achieved by each node type, the SNB nodes
   executed the Cholesky factorization up to $2.00$ times faster for tested
   matrix dimensions of $2000$ or less, the linear solve $1.77$ times
@@ -367,9 +345,8 @@ Comparing the best run times achieved by each node type, the SNB nodes
 The KNL nodes began to outperform the SNB nodes for matrix
   dimensions at or above $2000$ or $4000$ for the same kernels, achieving run
   times that were $4.03$ (Cholesky factorization), $4.41$ (linear solve),
-  and $5.23$ (matrix determinant) times faster than those achieved on the Sandy
-  Bridge nodes given matrix dimensions of $30000$, $20000$, and $40000$,
-  respectively.
+  and $5.23$ (matrix determinant) times faster than those achieved on the SNB
+  nodes given matrix dimensions of $30000$, $20000$, and $40000$, respectively.
 The SNB nodes achieved at most $64\%$, $81\%$, and $84\%$ of the
   maximum possible speedup with sixteen or fewer threads executing the Cholesky
   factorization kernel with tested matrix dimensions of $30000$ or less, the
@@ -379,8 +356,8 @@ The SNB nodes achieved at most $64\%$, $81\%$, and $84\%$ of the
 The KNL nodes achieved at most $38\%$, $48\%$, and $64\%$ of the
   maximum possible speedup for the same kernels and matrix dimensions.
 The run-time and scalability performance results of the Cholesky factorization
-  and linear solve kernels for $N=20000$ are given in Figure~\ref{fig:cholSolveTime}
-  and Figure~\ref{fig:cholSolveScale}.
+  and linear solve kernels for $N=20000$ are given in Figures~\ref{fig:cholSolveTime}
+  and \ref{fig:cholSolveScale}.
 The plot of strong scaling shows results for up to $272$ threads on the KNL
   node to show how strong scaling decreases after more threads than the number of cores
   are applied, a performance charactertistic that was true of all of the matrix
@@ -396,41 +373,21 @@ The plot of strong scaling shows results for up to $272$ threads on the KNL
 \caption{Strong scaling of Cholesky factorization and linear solve kernels.}
 \label{fig:cholSolveScale}
 \end{figure}
-%\begin{figure}
-%\centering
-%\mbox{\subfigure{\includegraphics[height=2.0in, width=2.0in]{chol_solve_20000_68-rt.pdf}}\quad
-%\subfigure{\includegraphics[height=2.0in, width=2.0in]{chol_solve_20000_68-rt.pdf}}}
-%\caption{Blah.}
-%\end{figure}
-%\begin{figure}
-%\includegraphics[height=2in, width=2.57in]{Rplots.pdf}
-%\caption{.}
-%\end{figure}
 
-% JRM - Eigendecomposition and the QR have limited scalability because the
-% parallel algorithms have data dependencies that limit parallelism.  May one
-% to use at most one of these in the plots.
 The eigendecomposition kernel performed up to $2.75$ times faster on
   the SNB nodes than on the KNL nodes for tested matrix dimensions of $8000$ or
   less.
 As we increased the matrix dimension beyond $8000$, the KNL nodes
-  were up to $1.54$ times faster.
+  were up to $1.54$ times faster than the SNB nodes.
 For tested matrix dimensions of $20000$ or less, the KNL nodes
   achieved at most $5\%$ of the maximum possible speedup, and the SNB
   nodes achieved at most $17\%$ of the maximum possible speedup.
-It is also interesting to note that the eigendecomposition kernel never scaled
-  beyond eight threads on the SNB nodes, regardless of matrix dimension, but the
-  performance did not deteriorate as the maximum number of threads (sixteen)
-  was reached either.
+The eigendecomposition kernel never scaled beyond eight threads on the SNB
+  nodes, regardless of matrix dimension, but the performance did not deteriorate
+  as the maximum number of threads (sixteen) was reached either.
 
-% JRM - This kernel was problematic under SNB icc 15.0, but less so under icc
-% 17.0.  However, comparison with plots would require two plots and not add
-% much to the overall discussion.  Perhaps just a couple of summary sentences
-% are needed.
-The least squares fit kernel experienced difficulties scaling beyond
+The linear least squares fit kernel experienced difficulties scaling beyond
   four threads on the SNB nodes.
-%Recall that the matrix dimensions in the case of the least squares fit are
-%  parametrized by $N$ such that the matrix is $2N \times N/2$.
 The SNB run times were up to $2.18$ times faster than those of the
   KNL nodes for tested values of $N=8000$ or less, and the SNB nodes achieved at
   most $10\%$ of the maximum possible speedup for tested values of $N=20000$ or
@@ -445,7 +402,6 @@ The strong scaling on KNL nodes stagnated beyond eight threads, achieving
 %  (Figure 3), we concluded that the linear least squares fit kernel is not
 %  scalable beyond a few threads on either node type.
 
-% JRM - Hightlight matrix-matrix product
 The KNL nodes were consistently competitive with or outperformed the
   SNB nodes for all matrix dimensions and numbers of threads tested
   with the matrix cross product and matrix-matrix multiplication
@@ -454,7 +410,7 @@ The matrix cross product kernel was up to $4.27$ times as fast on the KNL
   nodes than on the SNB nodes for tested matrix dimensions of $40000$ or less.
 The matrix-matrix multiplication kernel was up to $3.12$ times as fast on the
   KNL nodes than on the SNB nodes for tested matrix dimensions greater than
-  $2000$; for tested matrix dimension of $2000$ or less, the best SNB nodes were
+  $2000$; for tested matrix dimension of $2000$ or less, the SNB nodes were
   up to $2.11$ times faster than the KNL nodes.
 The KNL and SNB nodes executing the matrix cross product kernel achieved $51\%$
   and $84\%$ of their maximum possible speedups, respectively.
@@ -476,21 +432,17 @@ Performance results for $N=20000$ are given in Figures~\ref{fig:crossMatmatTime}
 The matrix-vector multiplication kernel on the SNB nodes consistently
   outperformed the KNL nodes for all tested matrix dimensions and numbers of
   threads.
-The SNB nodes ran the kernel up to $6.14$ times faster than the KNL nodes for
+The kernel was up to $6.14$ times faster on the SNB nodes than the KNL nodes for
   matrix dimensions of $40000$ or less.
 The speedups achieved by the KNL and SNB nodes with the kernel were at most
-  $2\%$ and $9\%$, respectively.
-% JRM - Move to discussion section
-The poor scalability may be because the single-core performance is very high,
-  and matrices of larger dimension could not be tested to increase the workload
-  per core because of the matrix dimension limitations imposed by R.
+  $2\%$ and $9\%$ of the maximum possible, respectively.
 
 % QR
 We tested the QR decomposition kernel using the LAPACK \texttt{dgeqp3}
   routine.
 The kernel performed up to $1.48$ times faster on the SNB nodes for
   matrix dimensions of $2000$ or less.
-For matrix dimensions of $4000$ or more, the Knights Landing nodes were up to
+For matrix dimensions of $4000$ or more, the KNL nodes were up to
   $6.32$ times faster than the SNB nodes.
 The KNL nodes achieved speedups of at most $28\%$ of the maximum possible, and
   the SNB nodes achieved speedups of at most $38\%$ of the maximum possible.
@@ -503,7 +455,7 @@ For tested matrix dimensions of $4000$ or greater, the kernel was up to $4.25$
 The percentages of the maximum possible speedup achieved by the KNL
   and SNB nodes were at most $23\%$ and $22\%$, respectively.
 
-We also tested the performance of the Cholesky factorization, dense linear
+We also tested the performance of the Cholesky factorization, linear
   solve, and matrix cross product kernels when run exclusively out of the
   high-bandwidth MCDRAM.
 We accomplished this by executing the kernels on KNL nodes booted in
@@ -516,11 +468,11 @@ The performance results showed no appreciable differences
   mode.
 
 We conducted additional experiments with the SNB nodes to determine if
-  the least squares fit, linear solve, or QR decomposition microbenchmarks
+  the linear least squares fit, linear solve, or QR decomposition microbenchmarks
   would show improvement under the Intel 17 Update 1 compiler and MKL.
 The linear solve and QR decomposition microbenchmark results showed little
   or no improvement over their Intel 15 Update 2 counterparts; however, the
-  least squares fit exhibited improved scalability beyond four threads
+  linear least squares fit exhibited improved scalability beyond four threads
   for moderate to large matrix dimensions.
 
 We performance tested the \texttt{nnet} function from the \textit{nnet} package
@@ -529,8 +481,6 @@ We performance tested the \texttt{nnet} function from the \textit{nnet} package
 Our tests revealed that neither of the package functions was parallelized, as
   was indicated by the run times and the analysis tools we used to determine if
   multiple threads were being created.
-%Nevertheless, the tests are useful for assessing performance of commonly used R
-%  libraries on each node type.
 The SNB nodes were approximately $3.5$ times faster and $3.0$ times
   faster than the KNL nodes at training the neural network with
   three features and five features (Table~\ref{tab:nnetResults}), respectively.
@@ -541,11 +491,8 @@ This is because neural network training solves a non-convex objective function
   therefore, it is useful only to compare performance between the two node types
   for a pair of features and number of training vectors.
 
-We used the package default parameters to test the \texttt{pam} clustering
-  microbenchmark to compute the membership of feature vectors to seven
-  different clusters as described in Section~\ref{sec:hpcBenchmark}.
 The SNB nodes were approximately $1.34$-$1.44$ times faster than the KNL nodes
-  when running the pam function for up to $17500$ feature vectors, but the KNL
+  when running the \texttt{pam} function for up to $17500$ feature vectors, but the KNL
   nodes closed that gap to approximately $1.04$ times as fast for $35000$
   feature vectors.
 With $40005$ feature vectors, the KNL nodes were $1.11$ times faster than the
@@ -599,7 +546,7 @@ The overheads in the matrix kernel functions, most of which call BLAS and
 To determine the potential for further optimization of R functionality, we
   developed a set of drivers for the matrix cross product, QR decomposition,
   and linear solve in C and compared their performance to their
-  their R interpreter counterparts.
+  their R internal function counterparts.
 The cross product internal function is implemented as a call to the LAPACK
   FORTRAN function \texttt{dsyrk} followed by a for loop to copy the upper
   triangle of the result matrix to its lower triangle; the C driver replicates
@@ -610,12 +557,12 @@ The QR decomposition internal function is implemented as a call to the LAPACK
 The C driver for QR calls the \texttt{LAPACKE\_dsyrk} C wrapper function which
   dynamically allocates an optimally sized workspace, the other driver functions
   call the FORTRAN functions directly.
-The R implementation of the dense linear solve computes an estimate of the
+The R implementation of the linear solve computes an estimate of the
   condition number by default, a task we did not implement in the corresponding
   C driver.
 % JRM - comment on no need for performance optimization of kernel interfaces
-The results show that the performance of R kernels are highly competitive with
-  the native C drivers for all matrix dimensions and threads.
+The results showed that the performance of R internal functions are highly competitive
+  with the native C drivers for all matrix dimensions and threads.
 %The performance curves for the dense linear solve applied to the smallest tested
 %  matrix dimensions (Figure 15) do show some performance anomalies, however.
 %There is a substantial difference between the strong scaling of the C driver and
@@ -634,62 +581,99 @@ The implementation of the benchmarks improves upon limitations of the few R
   benchmarks that have been developed to date, namely the inability to perform
   scalability studies over successively larger problem sizes and to
   independently configure how each individual benchmark is executed.
-We obtained performance results running our HPC benchmark on both the Sandy
-  Bridge and Knights Landing nodes of the Stampede supercomputer at the Texas
-  Advanced Computing Center.
-We performed the tests using the latest Intel compiler and MKL bundle available
-  to users on the Sandy Bridge nodes and the Intel 17 Update 1 bundle on the
-  Knights Landing nodes.
-With few exceptions, the Sandy Bridge nodes achieved the best run-time
+%We obtained performance results running our HPC benchmark on both the Sandy
+%  Bridge and Knights Landing nodes of the Stampede supercomputer at the Texas
+%  Advanced Computing Center.
+%We performed the tests using the latest Intel compiler and MKL bundle available
+%  to users on the Sandy Bridge nodes and the Intel 17 Update 1 bundle on the
+%  Knights Landing nodes.
+With few exceptions, the SNB nodes achieved the best run-time
   performance for matrix dimensions up to a few thousand, an expected result
-  given that the clock speed of the Sandy Bridge CPUs is roughly twice that of
-  the Knights Landing CPUs.
-However, the best run time achieved on the Sandy Bridge nodes was never more
-  than three times as fast as the best run time achieved on the Knights Landing
+  given that the small problem sizes limit scalability on the KNL nodes
+  and that the clock speed of the SNB CPUs is roughly twice that of
+  the KNL CPUs.
+However, the best run time achieved on the SNB nodes over all tested numbers
+  of threads was never more
+  than three times as fast as the best run time achieved on the KNL
   nodes for a given matrix dimension, except in the case of matrix-vector
-  multiplication, for which the Sandy Bridge nodes were over six times faster
-  than the Knights Landing nodes.
+  multiplication, for which the SNB nodes were over six times faster
+  than the KNL nodes.
+The poor scalability of the matrix-vector kernel may be because the single-core
+  performance is very high and matrices of larger dimension could not be
+  tested to increase the workload per core due to limitations on matrix dimensions
+  imposed by R and memory allocation failures that occured.
+
 When we tested the Cholesky factorization, dense linear solve, matrix
   determinant, matrix-matrix multiplication, and matrix cross product kernels,
-  the Knights Landing nodes achieved strong scaling speedups of up to $45$ times
+  the KNL nodes achieved strong scaling speedups of up to $45$ times
   their single-threaded performance for large matrices.
-Furthermore, the best run times achieved on Knights Landing nodes were up to
-  $5.25$ times faster than the best run times achieved on Sandy Bridge nodes for
+Furthermore, the best run times achieved on KNL nodes were up to
+  $5.25$ times faster than the best run times achieved on SNB nodes for
   the same kernels and the largest matrix dimensions.
 The best run times achieved by the QR and singular value decompositions were up
-  to $6.5$ times faster on Knights Landing than Sandy Bridge for the largest
-  tested matrix dimensions, and the Knights Landing nodes achieved strong
+  to $6.5$ times faster on KNL than SNB for the largest
+  tested matrix dimensions, and the KNL nodes achieved strong
   scaling speedups of up to $19$.
-The Knights Landing nodes achieved modest strong scaling speedups of up to $3.5$
+The KNL nodes achieved modest strong scaling speedups of up to $3.5$
   for large matrix dimensions when we tested them with the eigendecomposition
   and the linear least squares fit kernels.
 Due to the limited scalability of these kernels, the best run times on the
-  Knights Landing nodes were only about $30$-$50\%$ smaller than the best run
-  times on the Sandy Bridge nodes.
-Scalability of the kernels never improved beyond $68$ threads on the Knights
-  Landing nodes regardless of matrix dimension.
-Tests comparing the performance of a few R kernels and equivalent kernels
-  written in C showed that there was very little overhead introduced by the
-  interpreter.
+  KNL nodes were only about $30$-$50\%$ less than the best run
+  times on the SNB nodes.
+
+In summary we were able to draw five important conclusions from our research.
+First, strong scaling flattens past 68 threads for benchmarked matrix kernels,
+  which heavily leverage the linear algebra routines of MKL.
+We saw that increasing the thread count beyond the physical number of cores
+  did not provide any benefit to performance, and in many cases, was
+  detrimental to performance.
+
+Second, the matrices must be large enough to provide sufficient work for
+  scalability.
+In general, to make full use of the large core count and wide vector units
+  of KNL, one needs to be operating on large matrices.
+We typically saw that for matrices of about $4000\times 4000$ or less in
+  size, the SNB nodes performed better than the KNL nodes;
+  however, as the matrix sizes were increased the KNL nodes outperformed
+  the SNB nodes by as much as a factor of five.
+
+Third, the R interpreter overhead is negligible for microbenchmarked functions.
+By comparing the R implementation to a functionally similar kernel drivers
+  implemented in C, we found that the overhead incurred by the R interpreter is
+  neglibible.
+
+% JRM - We need to review the methodology section to see if any of these
+% points were left out.
+Fourth, the MCDRAM flat mode does not offer any performance
+  benefit over cached mode.
+The performance overhead of cached mode was negligible; however, our tests
+  did not include any long-running simulations or benchmarks, so they were
+  not affected by memory fragmentation.
+  Also, it should be noted that the largest matrices we tested would fit
+  entirely in MCDRAM, so we were not evaluating MCDRAM as a cache device
+  in larger or longer-running calculations.
+
+Lastly, many higher-level R packages are not optimized/parallelized/vectorized
+  and do not leverage the MKL functionality exposed in the microbenchmarked
+  functions.
+The two higher-level packages we tested, \textit{nnet} and \textit{cluster},
+  did not perform particularly well on KNL when compared to SNB.
+And although it is certainly possible to implement these algorithms using the
+  functions we tested in the matrix kernel microbenchmarks, it appears that
+  the base R implementations do not exercise this option.
+Higher-level R functions should be inspected on a case-by-case basis to see
+  how well they vectorize, are optimized for a KNL-like architecture, or
+  utilize already optimized functions that leverage MKL.
+
+
+\section{Future Work} \label{sec:future}
 Given the low strong scaling achieved by the matrix-vector kernel, alternatives
   to the \texttt{dgemm} function, which R version 3.2.1 uses to implement the
   matrix-vector operation, should be explored.
-Microbenchmarks of summary statistics kernels such as mean, variance, and
-  covariance computation need to be added to the benchmark to improve its
-  coverage of intrinsic R functionality; optimization efforts may need to be
-  focused on those kernels depending on performance.
-In addition to computational kernels, we also conducted performance tests of
-  clustering and neural network training functions and determined that those
-  functions had not been parallelized or engineered with parallelized kernel
-  functions.
-The Sandy Bridge nodes were substantially faster at neural network training with
-  the \texttt{nnet} function for small numbers of features.
-The Sandy Bridge nodes were faster at computing clusters with the \texttt{pam}
-  function for $35000$ training vectors or less, but Knights Landing nodes were
-  faster beyond $40000$ training vectors.
-Performance testing of the neural network training and clustering functions
-  should be conducted with larger numbers of features to determine if the
-  performance of the Knights Landing nodes will improve with more features.
+
+%Performance testing of the neural network training and clustering functions
+%  should be conducted with larger numbers of features to determine if the
+%  performance of the Knights Landing nodes will improve with more features.
 Furthermore, additional compute intensive machine learning or data analytics
   functionality commonly used in R should eventually be included in the
   benchmark to provide more extensive performance assessments.
@@ -702,8 +686,10 @@ If the performance of the \textit{nnet} and \textit{cluster} packages are an
   likely need to be vectorized and either parallelized or restructured to rely
   as much as possible on parallelized computational kernels.
 
-\section{Future Work} \label{sec:future}
-% TODO: Move future work content from Discussion section into this section
+Microbenchmarks of summary statistics kernels such as mean, variance, and
+  covariance computation need to be added to the benchmark to improve its
+  coverage of intrinsic R functionality; optimization efforts may need to be
+  focused on those kernels depending on performance.
 
 %\begin{acks}
 %  The authors would like to thank...
