@@ -131,7 +131,7 @@ read_sheet_data <- function(excelFile, numSheets, maxNumThreads) {
 timings_plot_multi <- function(excelFile, numSheets, maxNumThreads, kernelNames, titleStr, pdfFile) {
   fontScaleFactor <- 0.85
 
-  pdf(file=pdfFile, height=7.0, width=9.0)
+  pdf(file=pdfFile)
   #pdf(file=pdfFile, height=2.0, width=2.5)
 
   results <- read_sheet_data(excelFile, numSheets, maxNumThreads)
@@ -166,7 +166,7 @@ timings_plot_multi <- function(excelFile, numSheets, maxNumThreads, kernelNames,
   }
 
   print(legendEntries)
-  legend("topright", legend=legendEntries, pch=legendPch, lty=legendLty)
+  legend("topleft", legend=legendEntries, pch=legendPch, lty=legendLty)
   #box()
 
   title(main=titleStr, col.main="black", font.main=1, line=0.5, cex.main=fontScaleFactor) 
@@ -177,7 +177,8 @@ timings_plot_multi <- function(excelFile, numSheets, maxNumThreads, kernelNames,
 
 # Plots results from multiple kernels on the same line chart
 plot_multi <- function(results, kernelNames, titleStrTime, titleStrScaling, pdfBaseFileName) {
-  fontScaleFactor <- 0.85
+  fontScaleFactor <- 0.90
+  pointScaleFactor <- 1.15
 
   pdfTimesFile <- paste(pdfBaseFileName, "-rt", ".pdf", sep="")
   pdfScalingFile <- paste(pdfBaseFileName, "-ss", ".pdf", sep="")
@@ -188,6 +189,7 @@ plot_multi <- function(results, kernelNames, titleStrTime, titleStrScaling, pdfB
   timeLimits <- results$timeLimits
   scalingLimits <- results$scalingLimits 
   numKernels <- length(knlTimes) # Assume all node types have same  #kernels
+  print(numKernels)
 
   knlPch <- c(16, 17, 18, 15)
   snbPch <- c(1, 2, 5, 0)
@@ -201,19 +203,21 @@ plot_multi <- function(results, kernelNames, titleStrTime, titleStrScaling, pdfB
   legendEntries <- list()
 
   # Plot times
-  pdf(file=pdfTimesFile, height=7.0, width=9.0)
-  plot(knlTimes[[1]], type="o", pch=knlPch[1], lty=1, ylim=timeLimits, col="black", xlab="", ylab="", las=1, cex.axis=fontScaleFactor)
+  pdf(file=pdfTimesFile)
+  plot(knlTimes[[1]], type="o", pch=knlPch[1], lty=1, ylim=timeLimits, col="black", xlab="", ylab="", las=1, cex=pointScaleFactor, cex.axis=fontScaleFactor)
   legendEntries[[1]] <- sprintf("KNL time - %s", kernelNames[1]) 
-  lines(snbTimes[[1]], type="o", pch=snbPch[1], lty=2, col="black")
+  lines(snbTimes[[1]], type="o", pch=snbPch[1], lty=2, col="black", cex=pointScaleFactor)
   legendEntries[[2]] <- sprintf("SNB time - %s", kernelNames[1]) 
   mtext(xlabel, side=1, line=2.25, cex=fontScaleFactor)
   mtext(ylabelTime, side=2, line=2.75, cex=fontScaleFactor)
 
-  for (i in 2:length(numKernels)) {
-    lines(knlTimes[[i]], type="o", pch=knlPch[i], lty=knlLty[i], col="black")
-    legendEntries[[2*(i-1)+1]] <- sprintf("KNL time - %s", kernelNames[i]) 
-    lines(snbTimes[[i]], type="o", pch=snbPch[i], lty=snbLty[i], col="black")
-    legendEntries[[2*(i-1)+2]] <- sprintf("SNB time - %s", kernelNames[i]) 
+  if (numKernels > 1) {
+     for (i in 2:numKernels) {
+       lines(knlTimes[[i]], type="o", pch=knlPch[i], lty=knlLty[i], col="black", cex=pointScaleFactor)
+       legendEntries[[2*(i-1)+1]] <- sprintf("KNL time - %s", kernelNames[i]) 
+       lines(snbTimes[[i]], type="o", pch=snbPch[i], lty=snbLty[i], col="black", cex=pointScaleFactor)
+       legendEntries[[2*(i-1)+2]] <- sprintf("SNB time - %s", kernelNames[i]) 
+     }
   }
 
   legend("topright", legend=legendEntries, pch=legendPch, lty=legendLty)
@@ -226,18 +230,20 @@ plot_multi <- function(results, kernelNames, titleStrTime, titleStrScaling, pdfB
 
   pdf(file=pdfScalingFile, height=7.0, width=9.0)
 
-  plot(knlScalings[[1]], type="o", pch=knlPch[1], lty=1, ylim=scalingLimits, col="black", xlab="", ylab="", las=1, cex.axis=fontScaleFactor)
+  plot(knlScalings[[1]], type="o", pch=knlPch[1], lty=1, ylim=scalingLimits, col="black", xlab="", ylab="", las=1, cex=pointScaleFactor, cex.axis=fontScaleFactor)
   legendEntries[[1]] <- sprintf("KNL scaling - %s", kernelNames[1]) 
-  lines(snbScalings[[1]], type="o", pch=snbPch[1], lty=2, col="black")
+  lines(snbScalings[[1]], type="o", pch=snbPch[1], lty=2, col="black", cex=pointScaleFactor)
   legendEntries[[2]] <- sprintf("SNB scaling - %s", kernelNames[1]) 
   mtext(xlabel, side=1, line=2.25, cex=fontScaleFactor)
   mtext(ylabelScaling, side=2, line=2.75, cex=fontScaleFactor)
 
-  for (i in 2:length(numKernels)) {
-    lines(knlScalings[[i]], type="o", pch=knlPch[i], lty=knlLty[i], col="black")
-    legendEntries[[2*(i-1)+1]] <- sprintf("KNL scaling - %s", kernelNames[i]) 
-    lines(snbScalings[[i]], type="o", pch=snbPch[i], lty=snbLty[i], col="black")
-    legendEntries[[2*(i-1)+2]] <- sprintf("SNB scaling - %s", kernelNames[i]) 
+  if (numKernels > 1) {
+     for (i in 2:numKernels) {
+        lines(knlScalings[[i]], type="o", pch=knlPch[i], lty=knlLty[i], col="black", cex=pointScaleFactor)
+        legendEntries[[2*(i-1)+1]] <- sprintf("KNL scaling - %s", kernelNames[i]) 
+        lines(snbScalings[[i]], type="o", pch=snbPch[i], lty=snbLty[i], col="black", cex=pointScaleFactor)
+        legendEntries[[2*(i-1)+2]] <- sprintf("SNB scaling - %s", kernelNames[i]) 
+     }
   }
 
   legend("topleft", legend=legendEntries, pch=legendPch, lty=legendLty)
@@ -277,14 +283,42 @@ plot_chol_solve <- function() {
 plot_cross_matmat <- function() {
    excelFile <- "./cross_matmat_20000.xlsx"
    numSheets <- 2
-   maxNumThreads <- 68
+   maxNumThreads <- 272
 
    kernelNames <- c("matrix cross prod.", "matrix-matrix mult.")
    titleStrTime <- "Run time of matrix cross product and matrix-matrix mult. (N=20000)"
    titleStrScaling <- "Strong scaling of matrix cross product and matrix-matrix mult. (N=20000)"
-   pdfBaseFileName <- "cross_matmat_20000_68"
+   pdfBaseFileName <- "cross_matmat_20000_272"
    results <- read_sheet_data(excelFile, numSheets, maxNumThreads)
    plot_multi(results, kernelNames, titleStrTime, titleStrScaling, pdfBaseFileName)
 
+}
+
+
+plot_eigen_qr <- function() {
+   excelFile <- "./eigen_qr_20000.xlsx"
+   numSheets <- 2
+   maxNumThreads <- 68
+
+   kernelNames <- c("eigendecomp.", "QR decomp.")
+   titleStrTime <- "Run time of eigendecomposition and QR decomposition (N=20000)"
+   titleStrScaling <- "Strong scaling of eigendecomposition and QR decomposition (N=20000)"
+   pdfBaseFileName <- "eigen_qr_20000_68"
+   results <- read_sheet_data(excelFile, numSheets, maxNumThreads)
+   plot_multi(results, kernelNames, titleStrTime, titleStrScaling, pdfBaseFileName)
+}
+
+
+plot_matvec <- function() {
+   excelFile <- "./matvec_40000.xlsx"
+   numSheets <- 1
+   maxNumThreads <- 68
+
+   kernelNames <- c("matrix-vector mult.")
+   titleStrTime <- "Run time of matrix-vector multiplication (N=40000)"
+   titleStrScaling <- "Strong scaling of matrix-vector multiplication (N=40000)"
+   pdfBaseFileName <- "matvec_40000_68"
+   results <- read_sheet_data(excelFile, numSheets, maxNumThreads)
+   plot_multi(results, kernelNames, titleStrTime, titleStrScaling, pdfBaseFileName)
 }
 
