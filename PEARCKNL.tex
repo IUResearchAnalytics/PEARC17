@@ -240,7 +240,7 @@ mode. We did not run any benchmarks in hybrid mode.
 
 The KNL CPU can be configured in various clustering modes to group the tiles into
 quadrants or hemispheres to take advantage of data locality in
-applications~\cite{vladimirov:knlModes,}. The options for clustering are all-to-all,
+applications~\cite{vladimirov:knlModes}. The options for clustering are all-to-all,
 quadrant/hemisphere, and sub-numa clustering (SNC-2/SNC-4). All benchmarks were run in the
 quadrant clustering mode.
 
@@ -276,25 +276,25 @@ tested by increasing the number of MKL threads through the environment variable
 Hyperthreading was not enabled on the SNB processors, but it was enabled on the KNL
 processors. We observed no improvements in scalability by placing more than one thread on
 each core of the KNL processors, but have included results for more than 68 threads for
-completeness. In fact, as shown in figure \ref{fig:scaling}, increasing the number of
-threads beyond the number of physical cores actually has a detrimental effect on
+completeness. In fact, as shown in figure \ref{fig:cholSolveScale}, increasing the number
+of threads beyond the number of physical cores actually has a detrimental effect on
 performance. The thread counts tested on the SNB nodes were: $1$, $2$, $4$, $8$, $12$, and
 $16$; and the thread counts tested on the KNL nodes were: $1$, $2$, $4$, $8$, $16$, $34$,
 $66$, $68$, $136$, $204$, and $272$. Small matrix dimensions of size $2000$ and $4000$
-were often sufficient to determine performance cross over points for the linear algebra kernels
-where one node type would begin to outperform the other given an increase in matrix
-dimension. Larger matrices were useful for determining which kernels efficiently utilized
-a large number of threads on the Knights Landing nodes. Apart from some exceptions, we
-tested the linear algebra kernels with square matrices having the following row dimensions $N$:
-$1000$, $2000$, $4000$, $8000$, $10000$, $15000$, $20000$, and $40000$; in the case of the
-linear least squares fit kernel, the matrix dimensions were $2N \times N/2$ for the same values
-of $N$. For each combination of matrix dimension and number of threads for a given
-microbenchmark, we collected the run time and computed the strong scaling as the ratio of
-the run time of the microbenchmark to the run time of the microbenchmark with a single
-thread. We attempted to run performance tests up to matrix dimensions of $30000$ and
-$40000$ on the Sandy Bridge and Knights Landing nodes, respectively; however, some kernels
-could not be tested with these dimensions due to the memory capacity and internal size
-limitations imposed by R.
+were often sufficient to determine performance cross over points for the linear algebra
+kernels where one node type would begin to outperform the other given an increase in
+matrix dimension. Larger matrices were useful for determining which kernels efficiently
+utilized a large number of threads on the Knights Landing nodes. Apart from some
+exceptions, we tested the linear algebra kernels with square matrices having the following
+row dimensions $N$: $1000$, $2000$, $4000$, $8000$, $10000$, $15000$, $20000$, and
+$40000$; in the case of the linear least squares fit kernel, the matrix dimensions were
+$2N \times N/2$ for the same values of $N$. For each combination of matrix dimension and
+number of threads for a given microbenchmark, we collected the run time and computed the
+strong scaling as the ratio of the run time of the microbenchmark to the run time of the
+microbenchmark with a single thread. We attempted to run performance tests up to matrix
+dimensions of $30000$ and $40000$ on the Sandy Bridge and Knights Landing nodes,
+respectively; however, some kernels could not be tested with these dimensions due to the
+memory capacity and internal size limitations imposed by R.
 
 We chose to configure several parameters to the \texttt{nnet} function so that
   several iterations of the underlying solver would be required to optimize
