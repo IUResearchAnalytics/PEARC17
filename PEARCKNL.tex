@@ -1,7 +1,5 @@
 \graphicspath{{plots/}}
 \section{Introduction}
-% TODO: Move sections 1 and 2 of white paper into introduction
-
 The increasing demand for high performance computing in data analysis, driven by
 increasing data sizes and computational complexity, has rivaled that of scientific
 computing in recent years \cite{fox:bdBenchmarking, kouzes:paradigm}. Many data analysts,
@@ -68,13 +66,6 @@ The remainder of this paper as organized as follows, in \S\ref{sec:methodology} 
 
 
 \section{Methodology and Approach}\label{sec:methodology}
-% TODO: Methodology/approach section after introduction
-  % Pull in from white paper section 3:
-  %   1. focus on dense matrix, not sparse
-  %   2. Broad discussion of matrix sizes, thread counts, strong scaling
-  %   3. emphasize what we were getting at: SNB vs. KNL performance
-  %      for similar thread counts and scalability
-% JRM - This paragraph might belong in the introduction
 
 \subsection{A robust HPC benchmark for R} \label{sec:hpcBenchmark}
 
@@ -123,17 +114,15 @@ kernels. We executed each microbenchmark with a wide range of problem dimensions
 thread counts to determine run time performance and scalability of the underlying R
 functionality on each type of node, using strong scaling as the metric to determine
 scalability for various thread counts.
-% TODO: The sentence below indicates a goal not explicitly stated in the
-% white paper; we should find a place for it, but it doen't fit under
-% methodology.
-%It is our intention that the HPC benchmark also be used in performance
-%  optimization efforts.
 We chose dense linear algebra kernels for inclusion in the benchmark because they form the
 computational foundation of many numerical methods frequently utilized in R applications.
 The dense linear algebra kernels we included in the benchmark are: Cholesky factorization,
 eigendecomposition, linear least squares fit, linear solve with multiple right hand sides, matrix cross product,
 matrix determinant, matrix-matrix multiplication, matrix-vector multiplication, QR
 factorization, and singular value decomposition.
+All of the dense linear algebra kernels are implemented around BLAS or LAPACK interfaces
+  so the choice of optimized, multithreaded implementations of these libraries and
+  having them properly confiugured is cruicial for performance.
 
 % SM - At some point we need to point out that these all leverage MKL or the BLAS
 %libraries to some extent or another. The seleciton and configuration of your BLAS/LAPACK
@@ -261,7 +250,7 @@ we linked the resulting executables with the parallel Intel Math Kernel Library 
 versions 11.2.2 and 2017 Update 1, respectively. On the KNL nodes, running CentOS 7
 (kernel 3.10.0-327.36.3.el7.xpps1\_1.4.1.3272.x86\_64), we built the programming
 environment with the Intel XE compiler and linked with parallel MKL version 17.0 Update 1.
-The \texttt{-xHost} option was applied to both Sandy Bridge builds, and the
+The \texttt{-xHost} compiler option was applied to both Sandy Bridge builds, and the
 \texttt{-xMIC\_AVX512} option was applied to the Knights Landing build to utilize the
 vector instruction set. The \texttt{xMIC-AVX512} option is needed to select the AVX-512
 vector instruction set, the highest instruction set on Knights Landing, as the
@@ -269,6 +258,8 @@ vector instruction set, the highest instruction set on Knights Landing, as the
 options to GNU Autoconf to generate shared R libraries and to link R with the MKL BLAS and
 LAPACK libraries: \texttt{--without-x}, \texttt{--enable-R-shlib},
 \texttt{--enable-shared}, \texttt{--with-blas}, and \texttt{--with-lapack}.
+The MKL libraries provided the optimized and parallelized BLAS and LAPACK implementation
+  dependencies for all of our experiments.
 
 The threading environment of each microbenchmark was configured through OpenMP and MKL
 environment variables. As recommended in the MKL developer's guide~\cite{intel:mkl2017}
@@ -287,11 +278,11 @@ threads beyond the number of physical cores actually has a detrimental effect on
 performance. The thread counts tested on the SNB nodes were: $1$, $2$, $4$, $8$, $12$, and
 $16$; and the thread counts tested on the KNL nodes were: $1$, $2$, $4$, $8$, $16$, $34$,
 $66$, $68$, $136$, $204$, and $272$. Small matrix dimensions of size $2000$ and $4000$
-were often sufficient to determine performance cross over points for the matrix kernels
+were often sufficient to determine performance cross over points for the linear algebra kernels
 where one node type would begin to outperform the other given an increase in matrix
 dimension. Larger matrices were useful for determining which kernels efficiently utilized
 a large number of threads on the Knights Landing nodes. Apart from some exceptions, we
-tested the matrix kernels with square matrices having the following row dimensions $N$:
+tested the linear algebra kernels with square matrices having the following row dimensions $N$:
 $1000$, $2000$, $4000$, $8000$, $10000$, $15000$, $20000$, and $40000$; in the case of the
 linear least squares fit kernel, the matrix dimensions were $2N \times N/2$ for the same values
 of $N$. For each combination of matrix dimension and number of threads for a given
@@ -303,7 +294,7 @@ could not be tested with these dimensions due to the memory capacity and interna
 limitations imposed by R.
 
 We chose to configure several parameters to the \texttt{nnet} function so that
-  the several iterations of the underlying solver would be required to optimize
+  several iterations of the underlying solver would be required to optimize
   the neural net.
 We set the number of neurons in the hidden layer (\texttt{size}) to $200$;
   the maximum number of solver iterations (\texttt{maxit}) to $12500$;
@@ -397,10 +388,6 @@ The KNL run times were up to $1.46$ times faster than the SNB nodes for tested
 The strong scaling on KNL nodes stagnated beyond eight threads, achieving
   only $5\%$ of the maximum possible speedup for tested values of $N=20000$ or
   less.
-% JRM - Put this in discussion section
-%Based on this analysis and the stagnant or degraded strong scaling shown in
-%  (Figure 3), we concluded that the linear least squares fit kernel is not
-%  scalable beyond a few threads on either node type.
 
 The KNL nodes were consistently competitive with or outperformed the
   SNB nodes for all matrix dimensions and numbers of threads tested
@@ -462,7 +449,7 @@ We accomplished this by executing the kernels on KNL nodes booted in
   flat mode and used the \texttt{numactl} utility with the \texttt{--preferred}
   option to indicate that as much memory as possible for the R programming
   environment was to be allocated in the MCDRAM NUMA node; the environment and
-  the dynamically allocated matrices we tested did fit entirely in MCDRAM.
+  the dynamically allocated matrices we tested fit entirely in MCDRAM.
 The performance results showed no appreciable differences
   in kernel performance when the MCDRAM was configured in cache mode or flat
   mode.
@@ -537,7 +524,7 @@ With $40005$ feature vectors, the KNL nodes were $1.11$ times faster than the
 \end{table}
 
 
-The overheads in the matrix kernel functions, most of which call BLAS and
+The overheads in the linear algebra kernel functions, all of which call BLAS or
   LAPACK routines to perform the bulk of the computation~\cite{cran:Rmanuals},
   can potentially be large compared to similar functionality implemented
   exclusively in C due to data copying and validity checking that is common in
@@ -559,7 +546,6 @@ The C driver for QR calls the \texttt{LAPACKE\_dsyrk} C wrapper function which
 The R implementation of the linear solve computes an estimate of the
   condition number by default, a task we did not implement in the corresponding
   C driver.
-% JRM - comment on no need for performance optimization of kernel interfaces
 The results showed that the performance of R internal functions are highly competitive
   with the native C drivers for all matrix dimensions and threads.
 %The performance curves for the dense linear solve applied to the smallest tested
@@ -611,8 +597,9 @@ Due to the limited scalability of these kernels, the KNL nodes were only about
   $1.5$ times as fast as the SNB nodes.
 
 In summary, we were able to draw five important conclusions from our research.
-First, strong scaling flattens past 68 threads for benchmarked matrix kernels,
-  which heavily leverage the linear algebra routines of MKL.
+First, strong scaling flattens past 68 threads for the benchmarked 
+  linear algebra kernels, which heavily leverage the linear algebra routines
+  of MKL.
 We saw that increasing the thread count beyond the physical number of cores
   did not provide any benefit to performance, and in many cases, was
   detrimental to performance.
@@ -631,8 +618,6 @@ By comparing the R implementation to a functionally similar kernel drivers
   implemented in C, we found that the overhead incurred by the R interpreter is
   neglibible.
 
-% JRM - We need to review the methodology section to see if any of these
-% points were left out.
 Fourth, the MCDRAM flat mode does not offer any performance
   benefit over cached mode.
 The performance overhead of cached mode was negligible; however, our tests
@@ -649,15 +634,15 @@ Lastly, many higher-level R packages are not properly structured to take
 The two higher-level packages we tested, \textit{nnet} and \textit{cluster},
   did not perform particularly well on KNL when compared to SNB.
 And although it is certainly possible to implement these algorithms using the
-  functions we tested in the matrix kernel microbenchmarks, it appears that
-  the base R implementations do not exercise this option.
+  functions we tested in the linear algebra kernel microbenchmarks, it appears
+  that the base R implementations do not exercise this option.
 
 \section{Future Work} \label{sec:future}
 Given the low strong scaling achieved by the matrix-vector kernel, alternatives
   to the \texttt{dgemm} function, which R version 3.2.1 uses to implement the
   matrix-vector operation, should be explored in an effort to improve the
   scalability of that kernel on both systems.
-The HPC R benchmark should be extended to include sparse matrix kernels from
+The HPC R benchmark should be extended to include sparse linear algebra kernels from
   the \textit{matrix} library, a widely used matrix library that provides
   data structures and kernels for matrix-vector multiplication and sparse
   matrix factorizations.
@@ -679,11 +664,13 @@ In general, higher-level R functionality should be inspected on a case-by-case
   basis to see how well they vectorize, are optimized for a KNL-like
   architecture, or utilize already optimized functions that leverage MKL.
 
-%\begin{acks}
+\begin{acks}
 %  The authors would like to thank...
 %  See also \grantsponsor and \grantnum commands in acmguide.pdf
-%
-%\end{acks}
+This work was supported in part by the \grantsponsor{GSNSFACI1134872}{National Science Foundation}{http://www.nsf.gov} through award \grantnum[https://www.nsf.gov/awardsearch/showAward?AWD_ID=1134872]{GSNSFACI1134872}{ACI-1134872} to the Texas Advanced Computing Center (TACC) at The University of Texas at Austin.
+%\grantsponsor{GSNSFACI1134872}{National Science Foundation}{http://www.nsf.gov}
+%\grantnum[https://www.nsf.gov/awardsearch/showAward?AWD_ID=1134872]{GSNSFACI1134872}{ACI-1134872}
+\end{acks}
 
 \bibliographystyle{ACM-Reference-Format}
 \bibliography{PEARCKNL}
