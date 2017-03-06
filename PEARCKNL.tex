@@ -661,35 +661,33 @@ The two higher-level packages we tested, \textit{nnet} and \textit{cluster},
 And although it is certainly possible to implement these algorithms using the
   functions we tested in the matrix kernel microbenchmarks, it appears that
   the base R implementations do not exercise this option.
-Higher-level R functions should be inspected on a case-by-case basis to see
-  how well they vectorize, are optimized for a KNL-like architecture, or
-  utilize already optimized functions that leverage MKL.
-
 
 \section{Future Work} \label{sec:future}
 Given the low strong scaling achieved by the matrix-vector kernel, alternatives
   to the \texttt{dgemm} function, which R version 3.2.1 uses to implement the
-  matrix-vector operation, should be explored.
-
+  matrix-vector operation, should be explored in an effort to improve the
+  scalability of that kernel on both systems.
+The HPC R benchmark should be extended to include sparse matrix kernels from
+  the \textit{matrix} library, a widely used matrix library that provides
+  data structures and kernels for matrix-vector multiplication and sparse
+  matrix factorizations.
+Microbenchmarks of summary statistics kernels such as mean, variance, and
+  covariance computation need to be added to the benchmark to improve its
+  coverage of intrinsic R functionality; optimization efforts may need to be
+  focused on those kernels depending on performance.
 %Performance testing of the neural network training and clustering functions
 %  should be conducted with larger numbers of features to determine if the
 %  performance of the Knights Landing nodes will improve with more features.
 Furthermore, additional compute intensive machine learning or data analytics
   functionality commonly used in R should eventually be included in the
   benchmark to provide more extensive performance assessments.
-Given the lack of parallelism and lower performance of the \textit{nnet} and
-  \textit{cluster} packages on the Knights Landing nodes, future optimization
-  and parallelization efforts should focus primarily on improving the
-  performance of compute intensive packages.
 If the performance of the \textit{nnet} and \textit{cluster} packages are an
   indication of the performance of R packages in general, most packages will
   likely need to be vectorized and either parallelized or restructured to rely
   as much as possible on parallelized computational kernels.
-
-Microbenchmarks of summary statistics kernels such as mean, variance, and
-  covariance computation need to be added to the benchmark to improve its
-  coverage of intrinsic R functionality; optimization efforts may need to be
-  focused on those kernels depending on performance.
+In general, higher-level R functionality should be inspected on a case-by-case
+  basis to see how well they vectorize, are optimized for a KNL-like
+  architecture, or utilize already optimized functions that leverage MKL.
 
 %\begin{acks}
 %  The authors would like to thank...
