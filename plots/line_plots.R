@@ -246,29 +246,22 @@ plot_multi <- function(results, kernelNames, titleStrTime, titleStrScaling, pdfB
      }
   }
 
-  legend("topright", legend=legendEntries, pch=legendPch, lty=legendLty)
+  abline(0, 1, lty=6)
+  legendEntries <- append(legendEntries, c("linear scaling"), 0)
+  legendPch <- append(legendPch, NA_integer_, 0)
+  legendLty <- append(legendLty, 6, 0)
+
+  legend("bottomright", legend=legendEntries, pch=legendPch, lty=legendLty)
   title(main=titleStrScaling, col.main="black", font.main=1, line=0.5, cex.main=fontScaleFactor) 
   dev.off()
 
 }
 
 
-plot_example <- function() {
-   excelFile <- "matrix.xlsx"
-   numSheets <- 2
-   maxNumThreads <- 68
-   kernelNames <- c("matrix cross product", "mat. mat. mult.")
-   titleStr <- "Matrix cross product and matrix-matrix multiplication (N=20000)"
-   pdfFile <- "./matrix.pdf"
-
-   timings_plot_multi(excelFile, numSheets, maxNumThreads, kernelNames, titleStr, pdfFile)   
-} 
-
-
 plot_chol_solve <- function() {
    excelFile <- "./chol_solve_20000.xlsx"
    numSheets <- 2
-   maxNumThreads <- 68 
+   maxNumThreads <- 68
 
    kernelNames <- c("Cholesky fact.", "linear solve")
    titleStrTime <- "Run time of Cholesky factorization and linear solve (N=20000)"
