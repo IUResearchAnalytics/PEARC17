@@ -1,4 +1,5 @@
 \graphicspath{{plots/}}
+% JRM - revise abstract
 \section{Introduction}
 The increasing demand for high performance computing in data analysis, driven by
 increasing data sizes and computational complexity, has rivaled that of scientific
@@ -62,6 +63,7 @@ performance optimization efforts of the R programming environment to increase th
 applicability of HPC machines like Stampede 2 to compute-intensive data
 analysis.
 
+% JRM - replace S with Section
 The remainder of this paper as organized as follows, in \S\ref{sec:methodology} we cover the design goals and capabilites of a new HPC R benchmark and discuss the benchmarking strategy employed in the comparison between Stampede and Stampede 2. Section \ref{sec:results} presents highlights of results from the benchmarking carried out on the original Stampede and Stampede 2 machines, the implications and key lessons derived from these results are detailed in \S\ref{sec:discuss}. Finally, we present our conclusions and outline future work in section \ref{sec:future}.
 
 
@@ -270,6 +272,7 @@ intel:cpp2017, intel:mkl11_2, intel:mkl2017}. The scalability of the microbenchm
 tested by increasing the number of MKL threads through the environment variable
 \texttt{MKL\_NUM\_THREADS}.
 
+% JRM - Justify thread counts
 Hyperthreading was not enabled on the SNB processors, but it was enabled on the KNL
 processors. We observed no improvements in scalability by placing more than one thread on
 each core of the KNL processors, but have included results for more than 68 threads for
@@ -489,7 +492,6 @@ With $40005$ feature vectors, the KNL nodes were $1.11$ times faster than the
 
 % Neural networking benchmark results
 \begin{table}
-
   \caption{Run Time of Neural Network Training Benchmark}
   \label{tab:nnetResults}
   \begin{tabular}{llcc}
@@ -671,7 +673,7 @@ In general, higher-level R functionality should be inspected on a case-by-case
 \begin{acks}
 %  The authors would like to thank...
 %  See also \grantsponsor and \grantnum commands in acmguide.pdf
-This work was supported in part by the \grantsponsor{GSNSFACI1134872}{National Science Foundation}{http://www.nsf.gov} through award \grantnum[https://www.nsf.gov/awardsearch/showAward?AWD_ID=1134872]{GSNSFACI1134872}{ACI-1134872} to the Texas Advanced Computing Center (TACC) at The University of Texas at Austin.
+This work was supported in part by the \grantsponsor{GSACI1134872}{National Science Foundation}{http://www.nsf.gov} through award \grantnum[https://www.nsf.gov/awardsearch/showAward?AWD\_ID=1134872]{GSACI1134872}{ACI-1134872} to the Texas Advanced Computing Center (TACC) at The University of Texas at Austin.
 %\grantsponsor{GSNSFACI1134872}{National Science Foundation}{http://www.nsf.gov}
 %\grantnum[https://www.nsf.gov/awardsearch/showAward?AWD_ID=1134872]{GSNSFACI1134872}{ACI-1134872}
 \end{acks}
