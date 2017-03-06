@@ -507,15 +507,14 @@ With $40005$ feature vectors, the KNL nodes were $1.11$ times faster than the
       Number of & Number of training & \multicolumn{2}{c}{Run time (sec)}\\
       features  & vectors            & SNB & KNL\\
     \midrule
-    $3$ & $5000$  & $3.239\times 10^{2}$ & $1.156\times 10^{3}$ \\
-    $3$ & $10000$ & $1.842\times 10^{2}$ & $6.690\times 10^{2}$ \\
-    $5$ & $5000$  & $3.520\times 10^{2}$ & $1.028\times 10^{3}$ \\
-    $5$ & $10000$ & $1.536\times 10^{3}$ & $4.664\times 10^{3}$ \\
+    $3$ & $5000$  & $3.239\times 10^{2}$ & $1.041\times 10^{3}$ \\ % SNB
+    $3$ & $10000$ & $1.842\times 10^{2}$ & $6.736\times 10^{2}$ \\ % SNB
+    $5$ & $5000$  & $3.520\times 10^{2}$ & $1.031\times 10^{3}$ \\ % SNB
+    $5$ & $10000$ & $1.536\times 10^{3}$ & $4.912\times 10^{3}$ \\ % SNB
     %$5$ & $15000$ & $2.660\times 10^{3}$ & $8.216\times 10^{3}$ \\
     \bottomrule
   \end{tabular}
 \end{table}
-
 % Clustering benchmark results
 \begin{table}
   \caption{Run Time of Clustering Benchmark}
@@ -528,15 +527,15 @@ With $40005$ feature vectors, the KNL nodes were $1.11$ times faster than the
     \midrule
     %$3$ & $7$ & $7000$  & $4.416\times 10^{1}$ & $5.949\times 10^{1}$ \\
     %$3$ & $7$ & $10500$ & $1.065\times 10^{2}$ & $1.536\times 10^{2}$ \\
-    $3$ & $7$ & $14000$ & $2.890\times 10^{2}$ & $4.112\times 10^{2}$ \\
-    $3$ & $7$ & $17500$ & $6.757\times 10^{2}$ & $9.326\times 10^{2}$ \\
-    $3$ & $7$ & $35000$ & $2.578\times 10^{3}$ & $2.698\times 10^{3}$ \\
-    $3$ & $7$ & $40005$ & $9.236\times 10^{3}$ & $8.313\times 10^{3}$ \\
+    $3$ & $7$ & $14000$ & $2.890\times 10^{2}$ & $4.134\times 10^{2}$ \\ % SNB
+    $3$ & $7$ & $17500$ & $6.757\times 10^{2}$ & $9.324\times 10^{2}$ \\ % SNB
+    $3$ & $7$ & $35000$ & $2.578\times 10^{3}$ & $2.689\times 10^{3}$ \\ % SNB
+    $3$ & $7$ & $40005$ & $9.236\times 10^{3}$ & $8.313\times 10^{3}$ \\ % SNB
+%    $16$ & $33$ & $40029$ &                    & $1.4245\times 10^{4}$ \\ % SNB
     \bottomrule
   \end{tabular}
 \end{table}
 
-%
 
 The overheads in the matrix kernel functions, most of which call BLAS and
   LAPACK routines to perform the bulk of the computation~\cite{cran:Rmanuals},
@@ -581,19 +580,12 @@ The implementation of the benchmarks improves upon limitations of the few R
   benchmarks that have been developed to date, namely the inability to perform
   scalability studies over successively larger problem sizes and to
   independently configure how each individual benchmark is executed.
-%We obtained performance results running our HPC benchmark on both the Sandy
-%  Bridge and Knights Landing nodes of the Stampede supercomputer at the Texas
-%  Advanced Computing Center.
-%We performed the tests using the latest Intel compiler and MKL bundle available
-%  to users on the Sandy Bridge nodes and the Intel 17 Update 1 bundle on the
-%  Knights Landing nodes.
 With few exceptions, the SNB nodes achieved the best run-time
   performance for matrix dimensions up to a few thousand, an expected result
   given that the small problem sizes limit scalability on the KNL nodes
   and that the clock speed of the SNB CPUs is roughly twice that of
   the KNL CPUs.
-However, the best run time achieved on the SNB nodes over all tested numbers
-  of threads was never more
+However, the best run time achieved on the SNB nodes was never more
   than three times as fast as the best run time achieved on the KNL
   nodes for a given matrix dimension, except in the case of matrix-vector
   multiplication, for which the SNB nodes were over six times faster
@@ -603,25 +595,22 @@ The poor scalability of the matrix-vector kernel may be because the single-core
   tested to increase the workload per core due to limitations on matrix dimensions
   imposed by R and memory allocation failures that occured.
 
-When we tested the Cholesky factorization, dense linear solve, matrix
+When we tested the Cholesky factorization, linear solve, matrix
   determinant, matrix-matrix multiplication, and matrix cross product kernels,
   the KNL nodes achieved strong scaling speedups of up to $45$ times
   their single-threaded performance for large matrices.
-Furthermore, the best run times achieved on KNL nodes were up to
-  $5.25$ times faster than the best run times achieved on SNB nodes for
-  the same kernels and the largest matrix dimensions.
-The best run times achieved by the QR and singular value decompositions were up
-  to $6.5$ times faster on KNL than SNB for the largest
-  tested matrix dimensions, and the KNL nodes achieved strong
-  scaling speedups of up to $19$.
+Furthermore, the KNL nodes were up to $5.25$ times faster than the SNB nodes
+  for the same kernels and the largest matrix dimensions.
+The KNL nodes were $6.5$ times faster than the SNB nodes for QR and singular
+  value decompositions for the largest tested matrix dimensions, and the KNL
+  nodes achieved strong scaling speedups of up to $19$.
 The KNL nodes achieved modest strong scaling speedups of up to $3.5$
   for large matrix dimensions when we tested them with the eigendecomposition
   and the linear least squares fit kernels.
-Due to the limited scalability of these kernels, the best run times on the
-  KNL nodes were only about $30$-$50\%$ less than the best run
-  times on the SNB nodes.
+Due to the limited scalability of these kernels, the KNL nodes were only about
+  $1.5$ times as fast as the SNB nodes.
 
-In summary we were able to draw five important conclusions from our research.
+In summary, we were able to draw five important conclusions from our research.
 First, strong scaling flattens past 68 threads for benchmarked matrix kernels,
   which heavily leverage the linear algebra routines of MKL.
 We saw that increasing the thread count beyond the physical number of cores
@@ -653,8 +642,9 @@ The performance overhead of cached mode was negligible; however, our tests
   entirely in MCDRAM, so we were not evaluating MCDRAM as a cache device
   in larger or longer-running calculations.
 
-Lastly, many higher-level R packages are not optimized/parallelized/vectorized
-  and do not leverage the MKL functionality exposed in the microbenchmarked
+Lastly, many higher-level R packages are not properly structured to take
+  full advantage of the many-core, vectorized architecture of the Xeon Phi,
+  and they do not leverage the MKL functionality exposed in the microbenchmarked
   functions.
 The two higher-level packages we tested, \textit{nnet} and \textit{cluster},
   did not perform particularly well on KNL when compared to SNB.
