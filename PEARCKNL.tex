@@ -405,13 +405,15 @@ The KNL and SNB nodes executing the matrix-matrix multiplication kernel achieved
   $43\%$ and $96\%$ of their maximum possible speedups, respectively.
 Performance results for $N=20000$ are given in Figures~\ref{fig:crossMatmatTime}
   and \ref{fig:crossMatmatScale}.
+% Remove run time - keep scaling
+% Show linear scalability line
 \begin{figure}
 \includegraphics[height=\columnwidth, width=\columnwidth]{cross_matmat_20000_68-rt.pdf}
 \caption{Run time of matrix cross product and multiplication kernels.}
 \label{fig:crossMatmatTime}
 \end{figure}
 \begin{figure}
-\includegraphics[height=\columnwidth, width=\columnwidth]{cross_matmat_20000_272-ss.pdf}
+\includegraphics[height=\columnwidth, width=\columnwidth]{cross_matmat_20000_68-ss.pdf}
 \caption{Strong scaling of matrix cross product and multiplication kernels.}
 \label{fig:crossMatmatScale}
 \end{figure}
