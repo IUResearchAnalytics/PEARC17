@@ -489,6 +489,7 @@ With $40005$ feature vectors, the KNL nodes were $1.11$ times faster than the
 
 % Neural networking benchmark results
 \begin{table}
+
   \caption{Run Time of Neural Network Training Benchmark}
   \label{tab:nnetResults}
   \begin{tabular}{llcc}
@@ -504,6 +505,7 @@ With $40005$ feature vectors, the KNL nodes were $1.11$ times faster than the
     \bottomrule
   \end{tabular}
 \end{table}
+
 % Clustering benchmark results
 \begin{table}
   \caption{Run Time of Clustering Benchmark}
@@ -599,7 +601,7 @@ Due to the limited scalability of these kernels, the KNL nodes were only about
   $1.5$ times as fast as the SNB nodes.
 
 In summary, we were able to draw five important conclusions from our research.
-First, strong scaling flattens past 68 threads for the benchmarked 
+First, strong scaling flattens past 68 threads for the benchmarked
   linear algebra kernels, which heavily leverage the linear algebra routines
   of MKL.
 We saw that increasing the thread count beyond the physical number of cores
