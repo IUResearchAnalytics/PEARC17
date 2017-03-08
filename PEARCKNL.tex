@@ -69,15 +69,13 @@ performance optimization efforts of the R programming environment to increase th
 applicability of HPC machines like Stampede 2 to compute-intensive data
 analysis.
 
-% JRM - replace S with Section
-The remainder of this paper as organized as follows, in \S\ref{sec:methodology} we cover
-the design goals and capabilites of a new HPC R benchmark and discuss the benchmarking
-strategy employed in the comparison between Stampede and Stampede 2. Section
-\ref{sec:results} presents highlights of results from the benchmarking carried out on the
-original Stampede and Stampede 2 machines, the implications and key lessons derived from
-these results are detailed in \S\ref{sec:discuss}. Finally, we present our conclusions and
-outline future work in section \ref{sec:future}.
-
+The remainder of this paper as organized as follows, in section~\ref{sec:methodology} we
+cover the design goals and capabilites of a new HPC R benchmark and discuss the
+benchmarking strategy employed in the comparison between Stampede and Stampede 2.
+section~\ref{sec:results} presents highlights of results from the benchmarking carried out
+on the original Stampede and Stampede 2 machines, the implications and key lessons derived
+from these results are detailed in section~\ref{sec:discuss}. Finally, we present our
+conclusions and outline future work in section \ref{sec:future}.
 
 \section{Methodology and Approach}\label{sec:methodology}
 
@@ -133,16 +131,15 @@ dense linear algebra kernels and packages that can utilize optimized linear alge
 kernels. We executed each microbenchmark with a wide range of problem dimensions and
 thread counts to determine run time performance and scalability of the underlying R
 functionality on each type of node, using strong scaling as the metric to determine
-scalability for various thread counts.
-We chose dense linear algebra kernels for inclusion in the benchmark because they form the
-computational foundation of many numerical methods frequently utilized in R applications.
-The dense linear algebra kernels we included in the benchmark are: Cholesky factorization,
-eigendecomposition, linear least squares fit, linear solve with multiple right hand sides, matrix cross product,
-matrix determinant, matrix-matrix multiplication, matrix-vector multiplication, QR
-factorization, and singular value decomposition.
-All of the dense linear algebra kernels are implemented around BLAS or LAPACK interfaces
-  so the choice of optimized, multithreaded implementations of these libraries and
-  having them properly confiugured is cruicial for performance.
+scalability for various thread counts. We chose dense linear algebra kernels for inclusion
+in the benchmark because they form the computational foundation of many numerical methods
+frequently utilized in R applications. The dense linear algebra kernels we included in the
+benchmark are: Cholesky factorization, eigendecomposition, linear least squares fit,
+linear solve with multiple right hand sides, matrix cross product, matrix determinant,
+matrix-matrix multiplication, matrix-vector multiplication, QR factorization, and singular
+value decomposition. All of the dense linear algebra kernels are implemented around BLAS
+or LAPACK interfaces so the choice of optimized, multithreaded implementations of these
+libraries and having them properly confiugured is cruicial for performance.
 
 % SM - At some point we need to point out that these all leverage MKL or the BLAS
 %libraries to some extent or another. The seleciton and configuration of your BLAS/LAPACK
@@ -350,11 +347,13 @@ values, we determined the fastest node type for each microbenchmark and matrix d
 so that we could quantify relative performance. In the performance assesments that follow,
 we provide the percentage of the maximum possible speedup, which we define as the speedup
 divided by the number of physical cores (16 for SNB and 68 for KNL), achieved by each
-microbenchmark with the largest matrix tested. We term this metric the effiency as it measures the percentage of linear speedup achived for a microbenchmark. The results in the following paragraphs are
-grouped by microbenchmarks that yielded similar performance characteristics on SNB and
-KNL. Unless stated otherwise, the SNB performance assessments are based on microbenchmarks
-built under the Intel 15 Update 2 bundle, and the KNL performance assessments are based on
-microbenchmarks built under the Intel 17 Update 1 bundle.
+microbenchmark with the largest matrix tested. We term this metric the effiency as it
+measures the percentage of linear speedup achived for a microbenchmark. The results in the
+following paragraphs are grouped by microbenchmarks that yielded similar performance
+characteristics on SNB and KNL. Unless stated otherwise, the SNB performance assessments
+are based on microbenchmarks built under the Intel 15 Update 2 bundle, and the KNL
+performance assessments are based on microbenchmarks built under the Intel 17 Update 1
+bundle.
 
 When comparing SNB performance to KNL we found that the SNB architecture could outperform
 KNL for small matrix sizes. When looking at the best run times achieved by each node type,
@@ -412,16 +411,13 @@ The KNL and SNB nodes executing the matrix cross product kernel achieved $51\%$
   and $84\%$ of their maximum possible speedups, respectively.
 The KNL and SNB nodes executing the matrix-matrix multiplication kernel achieved
   $43\%$ and $96\%$ of their maximum possible speedups, respectively.
-Performance results for $N=20000$ are given in Figures~\ref{fig:crossMatmatTime}
-  and \ref{fig:crossMatmatScale}.
-% Remove run time - keep scaling
-% Show linear scalability line
 
-\begin{figure}
-\includegraphics[height=\columnwidth, width=\columnwidth]{cross_matmat_20000_68-rt.pdf}
-\caption{Run time of matrix cross product and multiplication kernels.}
-\label{fig:crossMatmatTime}
-\end{figure}
+Strong scaling results for $N=20000$ are given in Figure~\ref{fig:crossMatmatScale}.
+%\begin{figure}
+%\includegraphics[height=\columnwidth, width=\columnwidth]{cross_matmat_20000_68-rt.pdf}
+%\caption{Run time of matrix cross product and multiplication kernels.}
+%\label{fig:crossMatmatTime}
+%\end{figure}
 
 \begin{figure}
 \includegraphics[height=\columnwidth, width=\columnwidth]{cross_matmat_20000_68-ss.pdf}
@@ -437,8 +433,7 @@ The kernel was up to $6.14$ times faster on the SNB nodes than the KNL nodes for
 The speedups achieved by the KNL and SNB nodes with the kernel were at most
   $2\%$ and $9\%$ of the maximum possible, respectively.
 
-% QR
-We tested the QR decomposition kernel using the LAPACK \texttt{dgeqp3}
+We tested the QR decomposition kernel which calls the LAPACK \texttt{dgeqp3}
   routine.
 The kernel performed up to $1.48$ times faster on the SNB nodes for
   matrix dimensions of $2000$ or less.
@@ -447,13 +442,25 @@ For matrix dimensions of $4000$ or more, the KNL nodes were up to
 The KNL nodes achieved speedups of at most $28\%$ of the maximum possible, and
   the SNB nodes achieved speedups of at most $38\%$ of the maximum possible.
 
-The singular value decomposition kernel exhibited similar performance
+The singular value decomposition (SVD) kernel exhibited similar performance
 For each tested matrix dimension of $2000$ or less, the kernel was
   up to $1.78$ times faster on SNB nodes than on KNL nodes.
 For tested matrix dimensions of $4000$ or greater, the kernel was up to $4.25$
   times as fast as on the SNB nodes.
 The percentages of the maximum possible speedup achieved by the KNL
   and SNB nodes were at most $23\%$ and $22\%$, respectively.
+Strong scaling results for the QR and singular value decompositions with
+  $N=20000$ are given in Figure~\ref{fig:crossMatmatScale}.
+%\begin{figure}
+%\includegraphics[height=\columnwidth, width=\columnwidth]{qr_svd_20000_68-rt.pdf}
+%\caption{Run time of QR decomposition and SVD kernels.}
+%\label{fig:qrSvdTime}
+%\end{figure}
+%\begin{figure}
+\includegraphics[height=\columnwidth, width=\columnwidth]{qr_svd_20000_68-ss.pdf}
+\caption{Strong scaling of QR decomposition and SVD kernels.}
+\label{fig:qrSvdScale}
+\end{figure}
 
 We also tested the performance of the Cholesky factorization, linear
   solve, and matrix cross product kernels when run exclusively out of the
