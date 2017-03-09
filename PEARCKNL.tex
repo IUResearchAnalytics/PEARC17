@@ -162,41 +162,8 @@ linear solve with multiple right hand sides, matrix cross product, matrix determ
 matrix-matrix multiplication, matrix-vector multiplication, QR factorization, and singular
 value decomposition. All of the dense linear algebra kernels are implemented around BLAS
 or LAPACK interfaces so the choice of optimized, multithreaded implementations of these
-libraries and having them properly confiugured is cruicial for performance.
+libraries and having them properly configured is crucial for performance.
 
-% SM - At some point we need to point out that these all leverage MKL or the BLAS
-%libraries to some extent or another. The seleciton and configuration of your BLAS/LAPACK
-%library can make all the difference. We only used MKL though...
-
-%Many of these kernels are in \textit{R Benchmark}.
-% JRM - Omit the descriptions of the kernels and their applicability until
-% we know they won't push the paper length over the page limit
-%The Cholesky factorization, which factors a symmetric positive definite matrix
-% into two triangular factors, is often used to solve linear systems and to
-% generate random variables from multivariate normal
-% distributions~\cite{golub:matrix3}.
-%The eigendecomposition decomposes a matrix into a matrix of eigenvectors and a
-%  matrix of eigenvalues which have direct applications in science, engineering,
-%  and data analysis~\cite{strang:linAlg93, strang:cse07, saad:largeEigen11}.
-%The linear least squares fit is a ubiquitous method in modeling and statistics
-%  for fitting a function with linear coefficients to a data
-%  set~\cite{heath:scientific}.
-%% TODO: This next sentence needs a reference
-%The solution of a dense linear system of equations with multiple right-hand
-%  sides is a common problem in modeling and simulation when multiple solutions
-%  must be computed given a linear model of a system (the matrix) and several
-%  measurements (the multiple right-hand sides).
-%The fundamental linear algebra operations matrix cross product, matrix-matrix
-%  multiplication, and matrix-vector multiplication are integral to other
-%  kernels.
-%The matrix determinant has practical applications in statistics as it is
-% involved in the definition of various probability distributions~\cite{grimmett:probability}.
-%The QR factorization, which factors a matrix into an orthogonal matrix and an
-%  upper triangular matrix, is used in the solution of linear systems and as a
-%  component of other decompositions such as the eigendecomposition~\cite{golub:matrix3, trefethen:numLinAlg}.
-%The singular value decomposition, which decomposes a matrix into two unitary
-%  matrices and a diagonal matrix, is a powerful decomposition with many
-%  applications in data mining and machine learning~\cite{golub:matrix3, murphy:ml}.
 We also included microbenchmarks of neural network training and cluster identification
 functions from the \textit{nnet} and \textit{cluster} packages, respectively, that are
 included in the standard R distribution. The \texttt{nnet} function is used to train
@@ -276,7 +243,7 @@ options to GNU Autoconf to generate shared R libraries and to link R with the MK
 LAPACK libraries: \texttt{--without-x}, \texttt{--enable-R-shlib},
 \texttt{--enable-shared}, \texttt{--with-blas}, and \texttt{--with-lapack}. The MKL
 libraries provided the optimized and parallelized BLAS and LAPACK implementation
-dependencies for all of our experiments.
+dependencies for all of our experiments. While there are many other options for optimized parallel BLAS and LAPACK libraries, we chose to focus our efforts on Intel's implementation of MKL.
 
 The threading environment of each microbenchmark was configured through OpenMP and MKL
 environment variables. As recommended in the MKL developer's guide~\cite{intel:mkl2017}
@@ -321,10 +288,6 @@ $1.0\times 10^{-11}$; the flag enabling real-value outputs (\texttt{linout}) to
 The \texttt{pam} function was executed with default parameters.
 
 \section{Results} \label{sec:results}
-% JRM - Do we want to reference the spreadsheet?
-% SM - Somewhere around here, do you have a Scholarworks URL yet?
-%The test results for each microbenchmark, matrix size, and number of threads are
-%  given in a spreadsheet accompanying this document.
 
 Each of the microbenchmarks was run on both SNB and KNL for the matrix sizes and thread
 counts enumerated in section \ref{sec:methodology}. This section outlines the results
@@ -336,6 +299,11 @@ level machine learning packages \texttt{nnet} and \texttt{cluster}. We also impl
 and tested several equivalent microbenchmarks in C to determine the overhead incurred by R
 functions calling MKL. While highlights are presented here, all of the results of the
 tests can be obtained at {\bf NEED REFERENCE HERE!}.
+
+% JRM - Do we want to reference the spreadsheet?
+% SM - Somewhere around here, do you have a Scholarworks URL yet?
+%The test results for each microbenchmark, matrix size, and number of threads are
+%  given in a spreadsheet accompanying this document.
 
 \subsection{Results from dense linear algebra microbenchmarks}
 
@@ -545,20 +513,16 @@ allocates an optimally sized workspace, the other driver functions call the FORT
 functions directly. The R implementation of the linear solve computes an estimate of the
 condition number by default, a task we did not implement in the corresponding C driver.
 The results showed that the performance of R internal functions are highly competitive
-with the native C drivers for all matrix dimensions and threads.
+with the native C drivers for all matrix dimensions and threads. The performance curves
+for the dense linear solve applied to the smallest tested matrix dimensions do
+show some performance anomalies, however. There is a substantial difference between the
+strong scaling of the C driver and the R kernel when using two threads. Furthermore, the C
+driver scalability diverges sharply from that of the R kernel for eight or more threads
+for matrix dimensions $1000$ and $2000$. We reran the strong scaling test of the C driver
+several times for the smaller matrix dimensions to verify the results, with no appreciable
+change in the curves.
 
-%SM -- Need either a plot or max deviation numbers here.
-
-
-%The performance curves for the dense linear solve applied to the smallest tested
-%  matrix dimensions (Figure 15) do show some performance anomalies, however.
-%There is a substantial difference between the strong scaling of the C driver and
-%  the R kernel when using two threads.
-%Furthermore, the C driver scalability diverges sharply from that of the R kernel
-%  for eight or more threads for matrix dimensions $1000$ and $2000$.
-%We reran the strong scaling test of the C driver several times for the smaller
-%  matrix dimensions to verify the results, with no appreciable change in the
-%  curves.
+%SM -- Need either a plot or max deviation numbers here. Quantify ``highly competitive" and ``substantial difference''
 
 \section{Discussion} \label{sec:discuss}
 
@@ -625,8 +589,6 @@ factor of five.
 comparing the R implementation to a functionally similar kernel drivers implemented in C,
 we found that the overhead incurred by the R interpreter is negligible.
 
-% SM -- As mentioned above this needs to be quantified
-
 \item The MCDRAM flat mode does not offer any performance benefit over cached mode. The
 performance overhead of cached mode was negligible for our particular tests. However, our
 tests did not include any long-running simulations or benchmarks, so they were not
@@ -656,9 +618,6 @@ is reasonable to include additional focus benchmark areas. Fortunately, owing to
 design of the benchmarking framework this is not difficult to do. We will work to extend
 the benchmark to include sparse linear algebra kernels from the \textit{matrix} library,
 and summary statistics kernels such as mean, variance, and covariance computation.
-%Performance testing of the neural network training and clustering functions
-%  should be conducted with larger numbers of features to determine if the
-%  performance of the Knights Landing nodes will improve with more features.
 
 Additional compute intensive machine learning or data analytics functionality commonly
 used in R should eventually be included in the benchmark to provide more extensive
