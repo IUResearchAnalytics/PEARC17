@@ -323,6 +323,7 @@ characteristics on SNB and KNL. Unless stated otherwise, the SNB performance ass
 are based on microbenchmarks built under the Intel 15 Update 2 bundle, and the KNL
 performance assessments are based on microbenchmarks built under the Intel 17 Update 1
 bundle.
+
 \begin{figure}
 \includegraphics[height=\columnwidth, width=\columnwidth]{linsolve_20000_68-rt.pdf}
 \caption{Run time of linear solve kernel for a large matrix.}
@@ -346,12 +347,6 @@ $30000$, $20000$, and $40000$, respectively. Figure \ref{fig:largeLinsolveTime} 
 run times for the linear solve microbenchmark for various thread counts on both SNB and
 KNL with a matrix size of $20000$.
 
-\begin{figure}
-\includegraphics[height=\columnwidth, width=\columnwidth]{chol_solve_20000_68-ss.pdf}
-\caption{.}
-\label{fig:cholSolveScale}
-\end{figure}
-
 In terms of efficiency, the SNB nodes achieved $64\%$, $81\%$, and $84\%$ of the maximum
 possible speedup with sixteen threads executing the Cholesky factorization kernel with
 tested matrix dimensions of $30000$, the linear solve kernel with tested matrix dimensions
@@ -364,6 +359,7 @@ virtue of the fact that there are so many more cores on KNL and the matrices are
 enough that the faster run times are achieved. This can be seen in the scalability curves
 presented in figure \ref{fig:cholSolveScale} where the KNL results deviate from linear as
 the core count increases toward the number of physical cores on the KNL.
+
 \begin{figure}
 \includegraphics[height=\columnwidth, width=\columnwidth]{chol_solve_20000_68-ss.pdf}
 \caption{Strong scaling of Cholesky factorization and linear solve kernels.}
@@ -417,6 +413,7 @@ maximum possible speedups, respectively. The KNL and SNB nodes executing the mat
 multiplication kernel achieved $43\%$ and $96\%$ of their maximum possible speedups,
 respectively. Timing results for matrix-matrix multiplication with matrix size $N=20000$
 are given in Figure~\ref{fig:largeMatmatTime}.
+
 \begin{figure}
 \includegraphics[height=\columnwidth, width=\columnwidth]{matmat_20000_68-rt.pdf}
 \caption{Run time of matrix-matrix multiplication kernel for large matrix.}
