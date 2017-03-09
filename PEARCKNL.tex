@@ -355,14 +355,14 @@ run time is appreciably better than the SNB performance for large matrices, the 
 is not nearly as good when measured as a percentage of linear speedup, it is only by
 virtue of the fact that there are so many more cores on KNL and the matrices are large
 enough that the faster run times are achieved.
-%This can be seen in the scalability curves
-%presented in figure \ref{fig:cholSolveScale} where the KNL results deviate from linear as
-%the core count increases toward the number of physical cores on the KNL.
-%\begin{figure}
-%\includegraphics[height=\columnwidth, width=\columnwidth]{chol_solve_20000_68-ss.pdf}
-%\caption{Strong scaling of Cholesky and linear solve.}
-%\label{fig:cholSolveScale}
-%\end{figure}
+This can be seen in the scalability curves
+presented in figure \ref{fig:cholSolveScale} where the KNL results deviate from linear as
+the core count increases toward the number of physical cores on the KNL.
+\begin{figure}
+\includegraphics[height=\columnwidth, width=\columnwidth]{chol_solve_20000_68-ss.pdf}
+\caption{Strong scaling of Cholesky and linear solve.}
+\label{fig:cholSolveScale}
+\end{figure}
 
 The QR decomposition kernel, performed up
 to $1.48$ times faster on the SNB nodes for matrix dimensions of $2000$ or less. For
