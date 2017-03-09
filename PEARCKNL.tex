@@ -6,7 +6,7 @@ The increasing demand for high performance computing in data analysis, driven by
 increasing data sizes and computational complexity, has rivaled that of scientific
 computing in recent years \cite{fox:bdBenchmarking, kouzes:paradigm}. Many data analysts,
 researchers, and scientists are turning to HPC machines to help with algorithms and tools,
-such as machine learning, that are compuationally demanding and require large amounts of
+such as machine learning, that are computationally demanding and require large amounts of
 memory \cite{raj:hpcBigData}. Many of the characteristics of large scale machines (e.g.
 large amounts of RAM per node, high storage capacity, and advanced processing
 capabilities) appear very attractive to these researchers; however, challenges remain for
@@ -33,7 +33,7 @@ interpreter is implemented in the C programming language, and the functionality 
 programming environment can be extended through packages that are commercially available
 or available as open source. The ability to develop R packages in C means that developers
 can extend the functionality of the environment and achieve high performance. This also
-gives the R interpreter the flexability to link to external libraries optimized for
+gives the R interpreter the flexibility to link to external libraries optimized for
 performance on a given system. As an example, the R environment can be compiled to
 dynamically link with optimized instances of the BLAS \cite{dongarra:1990blas} and LAPACK
 \cite{hammarling:1988blas} libraries for performing linear algebra computations.
@@ -48,8 +48,8 @@ be used to prioritize software performance optimization efforts on emerging HPC 
 One such system is the Stampede 2 supercomputer at the Texas Advanced Computing Center
 (TACC), which features the latest Intel Xeon Phi processors, codenamed Knights Landing
 (KNL). TACC and Indiana University (IU) worked together on the Stampede project to
-improve performance and scalilbity of applications using the R language on the original
-Stampede machine. However, the original Stampde machine has a few key differences from
+improve performance and scalability of applications using the R language on the original
+Stampede machine. However, the original Stampede machine has a few key differences from
 Stampede 2. The latest Intel Xeon Phi processor (KNL) is a many-core, vector processor
 with up to 68 cores and two 512-bit vector processing units per core, a sufficient
 deviation from the standard Xeon processors and Xeon Phi accelerators of the original
@@ -58,7 +58,7 @@ on both systems \cite{tacc:stampedeGuide}. While some work was done by both IU a
 optimize R to run on the previous generation of Xeon Phi, codenamed Knights Corner (KNC),
 the number of real world R applications that could effectively make use of both the Xeon
 Sandy Bridge processors (SNB) and the KNC accelerators was vanishingly small. For this
-reason we focus our comparison of Stampde and Stampede 2 on comparing the KNL nodes and
+reason we focus our comparison of Stampede and Stampede 2 on comparing the KNL nodes and
 only the SNB portion of the Stampede nodes.
 
 We developed an R performance benchmark to determine the single-node run time performance
@@ -73,7 +73,7 @@ applicability of HPC machines like Stampede 2 to compute-intensive data
 analysis.
 
 The remainder of this paper as organized as follows, in section~\ref{sec:methodology} we
-cover the design goals and capabilites of a new HPC R benchmark and discuss the
+cover the design goals and capabilities of a new HPC R benchmark and discuss the
 benchmarking strategy employed in the comparison between Stampede and Stampede 2.
 Section~\ref{sec:results} presents highlights of results from the benchmarking carried out
 on the original Stampede and Stampede 2 machines, the implications and key lessons derived
@@ -98,14 +98,14 @@ conclusions and outline future work in section \ref{sec:future}.
     QR decomposition             & \texttt{qr} \\
     singular value decomposition & \texttt{svd} \\
     neural network training      & \texttt{nnet} \\
-    cluster identification       & \texttt{pam} \\
+    cluster identification       & \texttt{PA} \\
     \bottomrule
   \end{tabular}
 \end{table}
 
 \section{Methodology and Approach}\label{sec:methodology}
 
-To test the effiency and scalibility of the KNL system and compare to standard Xeon
+To test the efficiency and scalability of the KNL system and compare to standard Xeon
 architectures like SNB, we needed a flexible benchmark that could be easily scaled in
 thread count and problem size and tested a variety of operations typical to R workflows.
 When the most commonly used benchmarks in R did not meet our needs, we constructed a
@@ -113,7 +113,7 @@ framework and added several microbenchmarks that would meet our needs.
 
 \subsection{A robust HPC benchmark for R} \label{sec:hpcBenchmark}
 
-In our inital serach for a benchmark suite to use in our comparison of R performance on
+In our initial search for a benchmark suite to use in our comparison of R performance on
 Stampede and Stampede 2, we found that there are very few R performance benchmarks, and
 there is no R performance benchmark that has been peer reviewed and accepted as a
 standard. The most common and robust benchmark is the R Benchmark
@@ -408,7 +408,7 @@ The matrix-matrix multiplication kernel was up to $3.12$ times as fast on the KN
 than on the SNB nodes for tested matrix dimensions greater than $2000$. The KNL and SNB
 nodes executing the matrix cross product kernel achieved speedup efficiencies of
 $51\%$ and $84\%$ of their, respectively. The KNL and SNB nodes executing the matrix-matrix
-multiplication kernel achieved speedup efficienies of $43\%$ and $96\%$, respectively.
+multiplication kernel achieved speedup efficiencies of $43\%$ and $96\%$, respectively.
 Timing results for matrix-matrix multiplication with matrix size $N=20000$
 are given in Figure~\ref{fig:largeMatmatTime}.
 
@@ -498,7 +498,6 @@ vectors, the KNL nodes were $1.11$ times faster than the SNB nodes.
   \end{tabular}
 \end{table}
 
-
 The overheads in the linear algebra kernel functions, all of which call BLAS or LAPACK
 routines to perform the bulk of the computation~\cite{cran:Rmanuals}, can potentially be
 large compared to similar functionality implemented exclusively in C due to data copying
@@ -508,24 +507,25 @@ cross product, QR decomposition, and linear solve in C and compared their perfor
 their R internal function counterparts. The cross product internal function is
 implemented as a call to the LAPACK FORTRAN function \texttt{dsyrk} followed by a for loop
 to copy the upper triangle of the result matrix to its lower triangle; the C driver
-replicates this behavior. The QR decomposition internal function is implemented as a call
+implements the for loop with a \texttt{simd} pragma not performed in the R kernel, improving
+the vectorization of the C driver. The QR decomposition internal function is implemented as a call
 to the LAPACK FORTRAN function \texttt{dgeqp3}, and the dense linear solve internal
 function is implemented as a call to the LAPACK FORTRAN function \texttt{dgesv}. The C
 driver for QR calls the \texttt{LAPACKE\_dsyrk} C wrapper function which dynamically
 allocates an optimally sized workspace, the other driver functions call the FORTRAN
 functions directly. The R implementation of the linear solve computes an estimate of the
 condition number by default, a task we did not implement in the corresponding C driver.
-The results showed that the performance of R internal functions are highly competitive
-with the native C drivers for all matrix dimensions and threads. The performance curves
-for the dense linear solve applied to the smallest tested matrix dimensions do
-show some performance anomalies, however. There is a substantial difference between the
-strong scaling of the C driver and the R kernel when using two threads. Furthermore, the C
+The single threaded results for $N=1000$ showed that the cross product,
+QR decomposition, and linear solve C drivers were $8\%$, $3\%$, and $14\%$ faster than their
+R counterparts.  For $N=20000$, the C drivers were only $2\%$, $1\%$, and $2\%$ faster for
+the same kernels.
+The performance curves for the dense linear solve applied to the smallest tested matrix
+dimensions do show performance anomalies.  Specifically, there is a substantial difference
+between the strong scaling of the C driver and the R kernel when using two threads. Furthermore, the C
 driver scalability diverges sharply from that of the R kernel for eight or more threads
 for matrix dimensions $1000$ and $2000$. We reran the strong scaling test of the C driver
 several times for the smaller matrix dimensions to verify the results, with no appreciable
 change in the curves.
-
-%SM -- Need either a plot or max deviation numbers here. Quantify ``highly competitive" and ``substantial difference''
 
 \section{Discussion} \label{sec:discuss}
 \begin{figure}
