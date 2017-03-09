@@ -321,6 +321,7 @@ characteristics on SNB and KNL. Unless stated otherwise, the SNB performance ass
 are based on microbenchmarks built under the Intel 15 Update 2 bundle, and the KNL
 performance assessments are based on microbenchmarks built under the Intel 17 Update 1
 bundle.
+
 \begin{figure}
 \includegraphics[height=\columnwidth, width=\columnwidth]{linsolve_20000_68-rt.pdf}
 \caption{Run time of linear solve for a large matrix.}
@@ -348,11 +349,6 @@ The SNB nodes achieved $64\%$, $81\%$, and $84\%$ speedup efficiency with sixtee
 executing the Cholesky factorization kernel with tested matrix dimensions of $30000$, the
 linear solve kernel with tested matrix dimensions of $20000$, and the matrix determinant
 kernel with tested matrix dimensions of $40000$, respectively.
-%In terms of efficiency, the SNB nodes achieved $64\%$, $81\%$, and $84\%$ of the maximum
-%possible speedup with sixteen threads executing the Cholesky factorization kernel with
-%tested matrix dimensions of $30000$, the linear solve kernel with tested matrix dimensions
-%of $20000$, and the matrix determinant kernel with tested matrix dimensions of $40000$,
-%respectively.
 The KNL nodes achieved $38\%$, $48\%$, and $64\%$ speedup efficiency
 for the same kernels and matrix dimensions. While the KNL performance in terms of
 run time is appreciably better than the SNB performance for large matrices, the efficiency
@@ -415,6 +411,7 @@ $51\%$ and $84\%$ of their, respectively. The KNL and SNB nodes executing the ma
 multiplication kernel achieved speedup efficienies of $43\%$ and $96\%$, respectively.
 Timing results for matrix-matrix multiplication with matrix size $N=20000$
 are given in Figure~\ref{fig:largeMatmatTime}.
+
 \begin{figure}
 \includegraphics[height=\columnwidth, width=\columnwidth]{matmat_20000_68-rt.pdf}
 \caption{Run time of matrix-matrix multiplication for a large matrix.}
