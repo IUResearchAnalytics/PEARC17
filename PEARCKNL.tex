@@ -323,7 +323,6 @@ characteristics on SNB and KNL. Unless stated otherwise, the SNB performance ass
 are based on microbenchmarks built under the Intel 15 Update 2 bundle, and the KNL
 performance assessments are based on microbenchmarks built under the Intel 17 Update 1
 bundle.
-
 \begin{figure}
 \includegraphics[height=\columnwidth, width=\columnwidth]{linsolve_20000_68-rt.pdf}
 \caption{Run time of linear solve kernel for a large matrix.}
@@ -365,6 +364,11 @@ virtue of the fact that there are so many more cores on KNL and the matrices are
 enough that the faster run times are achieved. This can be seen in the scalability curves
 presented in figure \ref{fig:cholSolveScale} where the KNL results deviate from linear as
 the core count increases toward the number of physical cores on the KNL.
+\begin{figure}
+\includegraphics[height=\columnwidth, width=\columnwidth]{chol_solve_20000_68-ss.pdf}
+\caption{Strong scaling of Cholesky factorization and linear solve kernels.}
+\label{fig:cholSolveScale}
+\end{figure}
 
 The QR decomposition kernel, which calls the LAPACK \texttt{dgeqp3} routine, performed up
 to $1.48$ times faster on the SNB nodes for matrix dimensions of $2000$ or less. For
@@ -376,7 +380,6 @@ kernel was up to $1.78$ times faster on SNB nodes than on KNL nodes. For tested 
 dimensions of $4000$ or greater, the kernel was up to $4.25$ times as fast as on the SNB
 nodes. The percentages of the maximum possible speedup achieved by the KNL and SNB nodes
 were at most $23\%$ and $22\%$, respectively.
-
 \begin{figure}
 \includegraphics[height=\columnwidth, width=\columnwidth]{eigen_4000_68-rt.pdf}
 \caption{Run time of eigendecomposition kernel for medium sized matrix.}
@@ -414,7 +417,6 @@ maximum possible speedups, respectively. The KNL and SNB nodes executing the mat
 multiplication kernel achieved $43\%$ and $96\%$ of their maximum possible speedups,
 respectively. Timing results for matrix-matrix multiplication with matrix size $N=20000$
 are given in Figure~\ref{fig:largeMatmatTime}.
-
 \begin{figure}
 \includegraphics[height=\columnwidth, width=\columnwidth]{matmat_20000_68-rt.pdf}
 \caption{Run time of matrix-matrix multiplication kernel for large matrix.}
@@ -569,7 +571,6 @@ faster than the SNB nodes.
 
 In summary, we were able to draw five important conclusions from our research.
 \begin{enumerate}
-
 \item Strong scaling flattens past 68 threads for the benchmarked linear algebra kernels,
 which heavily leverage the linear algebra routines of MKL. As evidenced in figure
 \ref{fig:knlScalabilityLimits}, we saw that increasing the thread count beyond the
@@ -614,7 +615,6 @@ these implementations do not exercise this option.
 \end{enumerate}
 
 \section{Future Work} \label{sec:future}
-
 Based on the conclusions presented in section \ref{sec:discuss} there are several areas
 where extension of the current work is warranted. First, the suite of microbenchmarks
 implemented in this first version of our R benchmark focuses heavily on fairly low level
