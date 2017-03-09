@@ -347,6 +347,12 @@ $30000$, $20000$, and $40000$, respectively. Figure \ref{fig:largeLinsolveTime} 
 run times for the linear solve microbenchmark for various thread counts on both SNB and
 KNL with a matrix size of $20000$.
 
+\begin{figure}
+\includegraphics[height=\columnwidth, width=\columnwidth]{chol_solve_20000_68-ss.pdf}
+\caption{.}
+\label{fig:cholSolveScale}
+\end{figure}
+
 In terms of efficiency, the SNB nodes achieved $64\%$, $81\%$, and $84\%$ of the maximum
 possible speedup with sixteen threads executing the Cholesky factorization kernel with
 tested matrix dimensions of $30000$, the linear solve kernel with tested matrix dimensions
