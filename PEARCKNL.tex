@@ -1,29 +1,26 @@
 \graphicspath{{plots/}}
 \section{Introduction}
 
-The increasing demand for high performance computing in data analysis, driven by
+The increasing demand for high performance computing (HPC) in data analysis, driven by
 increasing data sizes and computational complexity, has rivaled that of scientific
 computing in recent years \cite{fox:bdBenchmarking, kouzes:paradigm}. Many data analysts,
 researchers, and scientists are turning to HPC machines to help with algorithms and tools,
-such as machine learning, that are computationally demanding and require large amounts of
-memory \cite{raj:hpcBigData}. Many of the characteristics of large scale machines (e.g.
-large amounts of RAM per node, high storage capacity, and advanced processing
-capabilities) appear very attractive to these researchers; however, challenges remain for
-many of the algorithms to make optimal use of the hardware \cite{lee:model}. Depending on
-the nature of the analysis to be performed, analytics workflows may be carried out as many
-independent concurrent processes requiring little or no coordination between them, or as
-highly coordinated parallel processes in which the processes perform portions of the same
-computational task. Examples of the former type of analysis include Monte Carlo
-simulations and optimization problems with a parameter sweep through many different
-initial conditions to compute an optimal result.  An example of the latter type of
-analysis is the solution of large, sparse linear systems of such high order that the
-computation of the solution can be effectively parallelized across the nodes.
-Regardless of how the workflow implemented, it is important for data analysts to have
-software environments at their disposal which can exploit the performance advantages of
-modern HPC machines.
-%Regardless of whether the workflow is implemented as independent concurrent or coordinated parallel
-%processes, it is important for data analysts to have software environments at their
-%disposal which can exploit the performance advantages of modern HPC machines.
+such as machine learning, that are compuationally demanding and require large amounts of
+memory \cite{raj:hpcBigData}. The characteristics of large scale machines (e.g. large
+amounts of RAM per node, high storage capacity, and advanced processing capabilities)
+appear very attractive to these researchers, however, challenges remain for algorithms to
+make optimal use of the hardware \cite{lee:model}. Depending on the nature of the analysis
+to be performed, analytics workflows may be carried out as many independent concurrent
+processes requiring little or no coordination between them, or as highly coordinated
+parallel processes in which the processes perform portions of the same computational task.
+Examples of the former type of analysis include Monte Carlo simulations and optimization
+problems with a parameter sweep through many different initial conditions to compute an
+optimal result.  An example of the latter type of analysis is the solution of large,
+sparse linear systems of such high order that the computation of the solution can be
+effectively parallelized across the nodes. Regardless of whether the workflow is
+implemented as independent concurrent or coordinated parallel processes, it is important
+for data analysts to have software environments at their disposal which can exploit the
+performance advantages of modern HPC machines.
 
 Data analysts have come to rely heavily on the open source R programming environment to
 manipulate and analyze their data. The R programming environment provides a language and
@@ -49,7 +46,7 @@ One such system is the Stampede 2 supercomputer at the Texas Advanced Computing 
 (KNL). TACC and Indiana University (IU) worked together on the Stampede project to
 improve performance and scalability of applications using the R language on the original
 Stampede machine. However, the original Stampede machine has a few key differences from
-Stampede 2. The latest Intel Xeon Phi processor (KNL) is a many-core, vector processor
+Stampede 2. The latest Intel Xeon Phi processor (KNL) is a system on a chip, many-core, vector processor
 with up to 68 cores and two 512-bit vector processing units per core, a sufficient
 deviation from the standard Xeon processors and Xeon Phi accelerators of the original
 Stampede system to necessitate a performance assessment of the R programming environment
@@ -108,7 +105,7 @@ To test the efficiency and scalability of the KNL system and compare to standard
 architectures like SNB, we needed a flexible benchmark that could be easily scaled in
 thread count and problem size and tested a variety of operations typical to R workflows.
 When the most commonly used benchmarks in R did not meet our needs, we constructed a
-framework and added several microbenchmarks that would meet our needs.
+framework and added several microbenchmarks that would.
 
 \subsection{A robust HPC benchmark for R} \label{sec:hpcBenchmark}
 
@@ -118,7 +115,7 @@ there is no R performance benchmark that has been peer reviewed and accepted as 
 standard. The most common and robust benchmark is the R Benchmark
 \cite{urbanek:Rbenchmarks} which runs fifteen different microbenchmarks covering matrix
 formation, matrix factorization, solving linear systems of equations, and sorting. Other
-benchmarks like bench \cite{urbanek:Rbenchmarks}, for example, are microbenchmarks that
+benchmarks like bench \cite{urbanek:Rbenchmarks}, are microbenchmarks that
 focus on a few specific computational kernels in R, but they lack the coverage needed to
 comprehensively assess R performance in a high-performance computing environment. Although
 R Benchmark is the most robust benchmark publicly available, it lacks the flexibility of
@@ -126,7 +123,7 @@ being able to easily adjust things like thread count and problem size, and it is
 only on testing intrinsic functionality while leaving the performance of packages included
 in the standard R distribution unassessed.  The benchmark is contained in a single R
 function which times each R operation or function to be performance tested, but there is
-no functionality to choose a specific operation or function to performance test.
+no capability to choose a specific operation or function to performance test.
 Furthermore, the size of the input data to each test is hardcoded and there is no way to
 loop over larger problem sizes as would be needed in scalability studies to test the
 effectiveness of parallelism. Also, users of the benchmark cannot set the number of runs
@@ -153,18 +150,16 @@ parallelized kernels.
 
 The HPC benchmark that we have developed performs microbenchmarking of compute-intensive
 dense linear algebra kernels and packages that can utilize optimized linear algebra
-kernels. We executed each microbenchmark with a wide range of problem dimensions and
+libraries. We executed each microbenchmark with a wide range of problem dimensions and
 thread counts to determine run time performance and scalability of the underlying R
 functionality on each type of node, using strong scaling as the metric to determine
 scalability for various thread counts. We chose dense linear algebra kernels for inclusion
 in the benchmark because they form the computational foundation of many numerical methods
 frequently utilized in R applications. The dense linear algebra kernels we included in the
-benchmark are: Cholesky factorization, eigendecomposition, linear least squares fit,
-linear solve with multiple right hand sides, matrix cross product, matrix determinant,
-matrix-matrix multiplication, matrix-vector multiplication, QR factorization, and singular
-value decomposition. All of the dense linear algebra kernels are implemented around BLAS
-or LAPACK interfaces so the choice of optimized, multithreaded implementations of these
-libraries and having them properly configured is crucial for performance.
+benchmark are presented in table \ref{tab:microbenchmarks}. All of the dense linear
+algebra kernels are implemented around BLAS or LAPACK interfaces so the choice of
+optimized, multithreaded implementations of these libraries and having them properly
+configured is crucial for performance.
 
 We also included microbenchmarks of neural network training and cluster identification
 functions from the \textit{nnet} and \textit{cluster} packages, respectively, that are
@@ -184,8 +179,7 @@ located at the origin and the means of two clusters are each located at position
 $1$ of each axis.
 
 We structured the HPC benchmark so that each kernel or package function is tested within
-its own microbenchmark function. Table~\ref{tab:microbenchmarks} shows the kernels and
-package functions tested by each microbenchmark. Each microbenchmark can be configured to
+its own microbenchmark function. Each microbenchmark can be configured to
 compute run time and performance for several problem sizes, where the run time with
 respect to each problem size is computed as an average over a configurable number of runs
 -- enabling users to test small problem sizes over a large number of runs to account for
@@ -199,8 +193,7 @@ Stampede and Stampede 2 computing clusters, respectively. Each SNB compute node
 is a Dell PowerEdge C8220z with two eight-core, $2.7$~GHz Intel Xeon E5-2680 (Sandy Bridge
 architecture) processors with $20$~MB of L2 cache each; $32$~GB of $1600$~MHz DDR3 RAM;
 and a 61-core Intel Xeon Phi SE10P coprocessor (KNC). Each KNL compute node is
-a Dell PowerEdge with a single 68-core, $1.4$~GHz Intel Xeon Phi 7250 CPU (Knights Landing
-architecture); $96$~GB of $2400$~MHz DDR4 RAM; and $16$~GB of on-package Multi-Channel
+a Dell PowerEdge with a single 68-core, $1.4$~GHz Intel Xeon Phi 7250 CPU; $96$~GB of $2400$~MHz DDR4 RAM; and $16$~GB of on-package Multi-Channel
 Dynamic Random Access Memory (MCDRAM) with $400$~GB/s bandwidth. Each of the Xeon Phi
 cores has two 512-bit vector processing units which support a fused multiply-add
 operation. The cores, which are grouped by tiles containing two cores and a shared $1$~MB
@@ -243,7 +236,7 @@ vector instruction set, the highest instruction set on KNL, as the
 \texttt{xHost} option is not supported for Xeon Phi processors. We passed the following
 options to GNU Autoconf to generate shared R libraries and to link R with the MKL BLAS and
 LAPACK libraries: \texttt{--without-x}, \texttt{--enable-R-shlib},
-\texttt{--enable-shared}, \texttt{--with-blas}, and \texttt{--with-lapack}. The MKL
+\texttt{--enable-shared}, \texttt{--with-blas}, and \texttt{--with\\-lapack}. The MKL
 libraries provided the optimized and parallelized BLAS and LAPACK implementation
 dependencies for all of our experiments. While there are many other options for optimized parallel BLAS and LAPACK libraries, we chose to focus our efforts on Intel's implementation of MKL.
 
@@ -268,7 +261,7 @@ $66$, $68$, $136$, $204$, and $272$. Small matrix dimensions of size $2000$ and 
 were often sufficient to determine performance cross over points for the linear algebra
 kernels where one node type would begin to outperform the other given an increase in
 matrix dimension. Larger matrices were useful for determining which kernels efficiently
-utilized a large number of threads on the Knights Landing nodes. Apart from some
+utilized a large number of threads on the KNL nodes. Apart from some
 exceptions, we tested the linear algebra kernels with square matrices having the following
 row dimensions $N$: $1000$, $2000$, $4000$, $8000$, $10000$, $15000$, $20000$, and
 $40000$; in the case of the linear least squares fit kernel, the matrix dimensions were
@@ -406,7 +399,7 @@ on the KNL nodes than on the SNB nodes for tested matrix dimensions of $40000$ o
 The matrix-matrix multiplication kernel was up to $3.12$ times as fast on the KNL nodes
 than on the SNB nodes for tested matrix dimensions greater than $2000$. The KNL and SNB
 nodes executing the matrix cross product kernel achieved speedup efficiencies of
-$51\%$ and $84\%$ of their, respectively. The KNL and SNB nodes executing the matrix-matrix
+$51\%$ and $84\%$ of their maximum speedup, respectively. The KNL and SNB nodes executing the matrix-matrix
 multiplication kernel achieved speedup efficiencies of $43\%$ and $96\%$, respectively.
 Timing results for matrix-matrix multiplication with matrix size $N=20000$
 are given in Figure~\ref{fig:largeMatmatTime}.
@@ -447,7 +440,7 @@ were parallelized.
 Analysis tools and performance results revealed that neither of the package functions was
 multithreaded.  The SNB nodes were approximately $3.5$
 times faster and $3.0$ times faster than the KNL nodes at training the neural network with
-three features and five features (Table~\ref{tab:nnetResults}), respectively. Note that
+three features and five features (table~\ref{tab:nnetResults}), respectively. Note that
 the run times decreased when we increased the number of feature vectors from $5000$ to
 $10000$ and the feature vector was of dimension three. This is because neural network
 training solves a non-convex objective function that can vary greatly with the number of
