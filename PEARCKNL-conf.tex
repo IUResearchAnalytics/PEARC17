@@ -73,19 +73,26 @@
 
 \begin{abstract}
 
-We present performance results obtained with a new  performance benchmark of the R
-programming environment on the Xeon Phi Knights Landing and standard Xeon-based compute
-nodes of the Stampede supercomputer cluster at the Texas Advanced Computing Center. The
-benchmark package consists of microbenchmarks of matrix linear algebra kernels and machine
-learning functionality included in the R distribution that can be built from those
-kernels. Our microbenchmarking results show that the Knights Landing compute nodes
-exhibited similar or superior performance compared to the standard Xeon-based nodes for
-matrix dimensions of moderate to large size for most of the microbenchmarks, executing as
-much as five times faster than the standard Xeon-based nodes. For the clustering and
-neural network training microbenchmarks, the standard Xeon-based nodes performed up to
-four times faster than their Xeon Phi counterparts for many large data sets, indicating
-that commonly used R packages may need to be reengineered to take advantage of existing
-optimized, scalable kernels.
+We present performance results obtained with a new single-node
+performance benchmark of the R programming environment on
+the many-core Xeon Phi Knights Landing and standard Xeon-based
+compute nodes of the Stampede supercomputer cluster at the Texas
+Advanced Computing Center.  The benchmark package consists of
+microbenchmarks of linear algebra kernels and machine learning
+functionality that includes clustering and neural network training
+from the R distribution.  The standard Xeon-based nodes outperformed
+their Xeon Phi counterparts for matrices of small to medium
+dimensions, performing approximately twice as fast for most of the
+linear algebra microbenchmarks.  For matrices of medium to large
+dimensions, the Knights Landing nodes were
+competitive with or outperformed the standard Xeon-based nodes with
+most of the linear algebra microbenchmarks, executing as much as five
+times faster than the standard Xeon-based nodes.  For the clustering and neural
+network training microbenchmarks, the standard Xeon-based nodes
+performed up to four times faster than their Xeon Phi counterparts
+for many large data sets, indicating that commonly used R packages
+may need to be reengineered to take advantage of existing optimized,
+scalable kernels.
 
 \end{abstract}
 
