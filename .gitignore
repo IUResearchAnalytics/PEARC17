@@ -6,7 +6,6 @@
 *.dvi
 *.ps
 *.log
-*.pdf
 *.bbl
 *.blg
 auto
