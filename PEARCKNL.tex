@@ -5,76 +5,70 @@ The increasing demand for high performance computing (HPC) in data analysis, dri
 increasing data sizes and computational complexity, has rivaled that of scientific
 computing in recent years \cite{fox:bdBenchmarking, kouzes:paradigm}. Many data analysts,
 researchers, and scientists are turning to HPC machines to help with algorithms and tools,
-such as machine learning, that are compuationally demanding and require large amounts of
-memory \cite{raj:hpcBigData}. The characteristics of large scale machines (e.g. large
+such as machine learning, that are computationally demanding and require large amounts of
+memory \cite{raj:hpcBigData}. The characteristics of large-scale machines (e.g. large
 amounts of RAM per node, high storage capacity, and advanced processing capabilities)
-appear very attractive to these researchers, however, challenges remain for algorithms to
+appear very attractive to these researchers; however, challenges remain for algorithms to
 make optimal use of the hardware \cite{lee:model}. Depending on the nature of the analysis
-to be performed, analytics workflows may be carried out as many independent concurrent
-processes requiring little or no coordination between them, or as highly coordinated
+to be performed, large-scale analytics workflows may be carried out as many independent
+concurrent processes requiring little or no coordination between them, or as highly coordinated
 parallel processes in which the processes perform portions of the same computational task.
-Examples of the former type of analysis include Monte Carlo simulations and optimization
-problems with a parameter sweep through many different initial conditions to compute an
-optimal result.  An example of the latter type of analysis is the solution of large,
-sparse linear systems of such high order that the computation of the solution can be
-effectively parallelized across the nodes. Regardless of whether the workflow is
-implemented as independent concurrent or coordinated parallel processes, it is important
-for data analysts to have software environments at their disposal which can exploit the
-performance advantages of modern HPC machines.
+Regardless of the workflow structure, it is important for data analysts to have software
+environments at their disposal which can exploit the performance advantages of modern HPC
+machines.
 
-Data analysts have come to rely heavily on the open source R programming environment to
-manipulate and analyze their data. The R programming environment provides a language and
-an interpreter designed around statistical computing \cite{ihaka:R}. The R language
-interpreter is implemented in the C programming language, and the functionality of the
-programming environment can be extended through packages that are commercially available
-or available as open source. The ability to develop R packages in C means that developers
-can extend the functionality of the environment and achieve high performance. This also
-gives the R interpreter the flexibility to link to external libraries optimized for
+The R programming environment provides both a language designed around statistical
+   computing and an interpreter implemented in the C programming language.
+The functionality of the programming environment can be extended with packages written in C,
+   enabling high-performance extensions.
+Th packages can be compiled to dynamically link to external libraries optimized for
+   performance on a given system.
+This also gives the R interpreter the flexibility to link to external libraries optimized for
 performance on a given system. As an example, the R environment can be compiled to
 dynamically link with optimized instances of the BLAS \cite{dongarra:1990blas} and LAPACK
 \cite{hammarling:1988blas} libraries for performing linear algebra computations.
 Optimization of the R interpreter, its intrinsic functionality, and R packages for
 specific hardware architectures will be necessary for data analysts to take full advantage
-of the latest HPC clusters, and to obviate the need to reengineer their analysis workflows
+of the latest HPC clusters, and to obviate the need to reengineer their workflows
 in another language.
 
-A way to assess the performance of software on a given computing platform and intercompare
+A way to assess the performance of software on a given computing platform and to intercompare
 performance across different platforms is through benchmarking. Benchmark results can also
 be used to prioritize software performance optimization efforts on emerging HPC systems.
-One such system is the Stampede 2 supercomputer at the Texas Advanced Computing Center
-(TACC), which features the latest Intel Xeon Phi processors, codenamed Knights Landing
-(KNL). TACC and Indiana University (IU) worked together on the Stampede project to
+One such system is Stampede 1.5, an early stage of the Stampede 2 supercomputer at the
+Texas Advanced Computing Center (TACC), which features the latest Intel Xeon Phi processor,
+codenamed Knights Landing (KNL). TACC and Indiana University (IU) worked together on the Stampede project to
 improve performance and scalability of applications using the R language on the original
 Stampede machine. However, the original Stampede machine has a few key differences from
 Stampede 2. The latest Intel Xeon Phi processor (KNL) is a system on a chip, many-core, vector processor
 with up to 68 cores and two 512-bit vector processing units per core, a sufficient
-deviation from the standard Xeon processors and Xeon Phi accelerators of the original
+deviation from the Xeon processors and Xeon Phi accelerators of the original
 Stampede system to necessitate a performance assessment of the R programming environment
 on both systems \cite{tacc:stampedeGuide}. While some work was done by both IU and TACC to
-optimize R to run on the previous generation of Xeon Phi, codenamed Knights Corner (KNC),
-the number of real world R applications that could effectively make use of both the Xeon
-Sandy Bridge processors (SNB) and the KNC accelerators was vanishingly small. For this
-reason we focus our comparison of Stampede and Stampede 2 on comparing the KNL nodes and
-only the SNB portion of the Stampede nodes.
+optimize R to run on the previous generation of Xeon Phi\cite{zou:2014high}, codenamed
+Knights Corner (KNC), the number of real world R applications that could effectively make
+use of both the Xeon Sandy Bridge processors (SNB) and the KNC accelerators was vanishingly
+small. For this reason we focus our comparison of Stampede and Stampede 1.5 on comparing the
+KNL nodes and only the SNB portion of the Stampede nodes.
 
 We developed an R performance benchmark to determine the single-node run time performance
 of compute intensive linear algebra kernels that are common to many data analytics
 algorithms, and the run time performance of machine learning functionality commonly
 implemented with linear algebra operations.  We then performed single-node strong scaling
 tests of the benchmark on both Stampede systems to determine problem sizes and numbers of
-threads for which the Stampede 2 nodes were comparable to or outperformed their original
+threads for which the Stampede 1.5 nodes were comparable to or outperformed their original
 Stampede counterparts.  It is our intention that the results be used to guide future
 performance optimization efforts of the R programming environment to increase the
 applicability of HPC machines like Stampede 2 to compute-intensive data
 analysis.
 
-The remainder of this paper is organized as follows, in section~\ref{sec:methodology} we
-cover the design goals and capabilities of a new HPC R benchmark and discuss the
-benchmarking strategy employed in the comparison between Stampede and Stampede 2.
-Section~\ref{sec:results} presents highlights of results from the benchmarking carried out
-on the original Stampede and Stampede 2 machines, the implications and key lessons derived
-from these results are detailed in section~\ref{sec:discuss}. Finally, we present our
-conclusions and outline future work in section \ref{sec:future}.
+The remainder of this paper is organized into four sections.  In Section~\ref{sec:methodology},
+we cover the design goals and capabilities of a new HPC R benchmark and discuss the
+benchmarking strategy employed in the comparison between Stampede and Stampede 1.5.
+In Section~\ref{sec:results}, we present highlights of results from the benchmarking we
+conducted on the original Stampede and Stampede 1.5 machines.  We detail the implications
+and key lessons derived from these results in Section~\ref{sec:discuss}.  Finally, we present our
+conclusions and outline future work in Section \ref{sec:future}.
 
 \begin{table}
   \caption{HPC Microbenchmarks and Corresponding Kernel or Package Functions Tested}
@@ -94,48 +88,47 @@ conclusions and outline future work in section \ref{sec:future}.
     QR decomposition             & \texttt{qr} \\
     singular value decomposition & \texttt{svd} \\
     neural network training      & \texttt{nnet} \\
-    cluster identification       & \texttt{PA} \\
+    cluster identification       & \texttt{pam} \\
     \bottomrule
   \end{tabular}
 \end{table}
 
 \section{Methodology and Approach}\label{sec:methodology}
 
-To test the efficiency and scalability of the KNL system and compare to standard Xeon
-architectures like SNB, we needed a flexible benchmark that could be easily scaled in
-thread count and problem size and tested a variety of operations typical to R workflows.
+To test the efficiency and scalability of the KNL system and compare to standard
+Xeon architectures like SNB, we needed a set of flexible microbenchmarks measuring
+the performance of operations typical of compute-intensive R workflows.
 When the most commonly used benchmarks in R did not meet our needs, we constructed a
 framework and added several microbenchmarks that would.
 
 \subsection{A robust HPC benchmark for R} \label{sec:hpcBenchmark}
 
-In our initial search for a benchmark suite to use in our comparison of R performance on
-Stampede and Stampede 2, we found that there are very few R performance benchmarks, and
+In our search for a benchmark suite to use in our comparison of R performance on
+Stampede and Stampede 1.5, we found that there are very few R performance benchmarks, and
 there is no R performance benchmark that has been peer reviewed and accepted as a
 standard. The most common and robust benchmark is the R Benchmark
 \cite{urbanek:Rbenchmarks} which runs fifteen different microbenchmarks covering matrix
 formation, matrix factorization, solving linear systems of equations, and sorting. Other
 benchmarks like bench \cite{urbanek:Rbenchmarks}, are microbenchmarks that
 focus on a few specific computational kernels in R, but they lack the coverage needed to
-comprehensively assess R performance in a high-performance computing environment. Although
-R Benchmark is the most robust benchmark publicly available, it lacks the flexibility of
-being able to easily adjust things like thread count and problem size, and it is focused
-only on testing intrinsic functionality while leaving the performance of packages included
-in the standard R distribution unassessed.  The benchmark is contained in a single R
-function which times each R operation or function to be performance tested, but there is
-no capability to choose a specific operation or function to performance test.
-Furthermore, the size of the input data to each test is hardcoded and there is no way to
-loop over larger problem sizes as would be needed in scalability studies to test the
-effectiveness of parallelism. Also, users of the benchmark cannot set the number of runs
-over which to average the run time of a specific function without changing the number of
-runs for all functions tested. The monolithic structure of R Benchmark also prevents
-configuring the microbenchmarks to run concurrently in a cluster environment or to easily
-select microbenchmarks to run independently.
+comprehensively assess R performance in a high-performance computing environment.
+Although R Benchmark is the most robust R benchmark publicly available, it lacks the
+flexibility needed to fully asses scalability in HPC environments, and it only tests
+intrinsic and base package functionality while leaving the performance of many packages
+included in the standard R distribution unassessed.
+The R Benchmark is implemented with a single R function with no capability for users to choose
+a specific R operation or function to performance test.
+Also, each microbenchmark is hardcoded to test specific matrix dimensions and lacks a way
+to loop over successively larger problems sizes, a feature needed to conveniently perform
+scalability studies.
+The monolithic structure of R Benchmark also prevents configuring the microbenchmarks to
+run concurrently in a cluster environment or to easily select microbenchmarks to run
+independently.
 
-When designing the HPC benchmark, we wanted to maintain flexibility and extensibility while
-still focusing in on the particular questions of interest for the comparison between
-Stampede and Stampede 2. In particular we wanted to identify which R functions either
-implemented multithreaded parallelism or could make use of underlying multithreaded
+When designing the HPC benchmark, we wanted flexibility and extensibility so that
+we could answer questions of interest for the comparison between
+Stampede and Stampede 1.5. In particular we wanted to identify which R functions 
+implemented multithreaded parallelism or made use of underlying multithreaded
 libraries; intercompare single-node run times and strong scaling on both the SNB
 and KNL nodes; and be able to estimate the overhead incurred by R kernel
 functions compared to similar kernel functionality implemented in C. Given that the kernel
@@ -148,15 +141,15 @@ implement the kernels. In addition to performance testing the kernel functions, 
 machine learning package functions to determine if and how those functions leverage any
 parallelized kernels.
 
-The HPC benchmark that we have developed performs microbenchmarking of compute-intensive
+The HPC benchmark performs mi\-cro\-bench\-mark\-ing of compute-intensive
 dense linear algebra kernels and packages that can utilize optimized linear algebra
 libraries. We executed each microbenchmark with a wide range of problem dimensions and
-thread counts to determine run time performance and scalability of the underlying R
+thread counts to determine run time performance and scalability of R
 functionality on each type of node, using strong scaling as the metric to determine
 scalability for various thread counts. We chose dense linear algebra kernels for inclusion
 in the benchmark because they form the computational foundation of many numerical methods
 frequently utilized in R applications. The dense linear algebra kernels we included in the
-benchmark are presented in table \ref{tab:microbenchmarks}. All of the dense linear
+benchmark are presented in Table \ref{tab:microbenchmarks}. All of the dense linear
 algebra kernels are implemented around BLAS or LAPACK interfaces so the choice of
 optimized, multithreaded implementations of these libraries and having them properly
 configured is crucial for performance.
@@ -168,10 +161,11 @@ neural networks with a single hidden layer~\cite{ripley:pattern96}, and the \tex
 function, which implements the partitioning around medoids algorithm~\cite{chu:kmedoids,
 reynolds:clustering}, is used to perform the cluster identification. We included benchmark
 tests of these packages because neural network training and cluster identification can be
-implemented with computational kernels tested in the benchmark. The neural network
-training benchmark trains a neural network on a set of feature vectors drawn from a
-multivariate normal distribution to approximate the probability density function from
-which the vectors were drawn. We chose to approximate a multivariate normal probability
+implemented with computational kernels tested in the benchmark.
+The neural network training benchmark trains a neural network to approximate a
+multivariate normal probability density function from a set of feature vectors drawn
+from the corresponding distribution.
+We chose to approximate a multivariate normal probability
 density function because the training problem is easy to scale in both number of training
 vectors and number of features. The clustering benchmark generates normally distributed
 clusters in an $N$-dimensional, real-valued feature space where the mean of one cluster is
@@ -182,14 +176,15 @@ We structured the HPC benchmark so that each kernel or package function is teste
 its own microbenchmark function. Each microbenchmark can be configured to
 compute run time and performance for several problem sizes, where the run time with
 respect to each problem size is computed as an average over a configurable number of runs
--- enabling users to test small problem sizes over a large number of runs to account for
-operating system interference. Another advantage of implementing the microbenchmarks as
-separate R functions is that they can be executed concurrently in cluster environments.
+Because they are implemented as separate R functions, the microbenchmarks can be executed
+concurrently in cluster environments.
+%Another advantage of implementing the microbenchmarks as
+%separate R functions is that they can be executed concurrently in cluster environments.
 
 \subsection{Description of Tested Systems}
 
 We conducted single-node performance tests on the SNB and KNL compute nodes of the
-Stampede and Stampede 2 computing clusters, respectively. Each SNB compute node
+Stampede and Stampede 1.5 computing clusters, respectively. Each SNB compute node
 is a Dell PowerEdge C8220z with two eight-core, $2.7$~GHz Intel Xeon E5-2680 (Sandy Bridge
 architecture) processors with $20$~MB of L2 cache each; $32$~GB of $1600$~MHz DDR3 RAM;
 and a 61-core Intel Xeon Phi SE10P coprocessor (KNC). Each KNL compute node is
@@ -201,8 +196,8 @@ L2 cache~\cite{intel:xeonphi}, communicate with each other via a two-dimensional
 network to maintain cache consistency.
 
 There are several different configuration options for the KNL architecture that are
-determined by settings in the BIOS and can only be changed at boot time. These are whether
-hyperthreading is enabled (when enabled there are four threads per core), the mode by
+determined by settings in the BIOS and can only be changed at boot time. Among these are
+whether or not hyperthreading is enabled (when enabled there are four threads per core), the mode by
 which the MCDRAM is accessed, and how the tiles are clustered together to access both the
 MCDRAM and DDR4 RAM on cache misses~\cite{vladimirov:knlModes, asai:mcdramKnl}.  The
 available options for MCDRAM access are flat mode, cache mode, and hybrid mode.  When the
@@ -213,7 +208,8 @@ utility \texttt{numactl} to launch the application. Programs executed with
 memory needed by the program is allocated in main memory. When the CPU is in cache mode,
 the MCDRAM acts as a level 3 cache, operating transparently to applications. We tested all
 of the microbenchmarks in cache mode and a few in flat mode to compare performance in each
-mode. We did not run any benchmarks in hybrid mode.
+mode. We did not run any benchmarks in hybrid mode, which configures a portion of MCDRAM
+in flat mode and the remainder in cache mode.
 
 The KNL CPU can be configured in various clustering modes to group the tiles into
 quadrants or hemispheres to take advantage of data locality in
@@ -229,16 +225,17 @@ we linked the resulting executables with the parallel Intel Math Kernel Library 
 versions 11.2.2 and 2017 Update 1, respectively. On the KNL nodes, running CentOS 7
 (kernel 3.10.0-327.36.3.el7.xpps1\_1.4.1.3272.x86\_64), we built the programming
 environment with the Intel XE compiler and linked with parallel MKL version 17.0 Update 1.
-The \texttt{-xHost} compiler option was applied to both SNB builds, and the
-\texttt{-xMIC\_AVX512} option was applied to the KNL build to utilize the
-vector instruction set. The \texttt{xMIC-AVX512} option is needed to select the AVX-512
+We applied the \texttt{-xHost} compiler option to both SNB builds and the
+\texttt{-xMIC\_AVX512} option to the KNL build to utilize the
+vector instruction set. The \texttt{xMIC-AVX512} option was needed to select the AVX-512
 vector instruction set, the highest instruction set on KNL, as the
-\texttt{xHost} option is not supported for Xeon Phi processors. We passed the following
+\texttt{xHost} option was not supported for Xeon Phi processors. We passed the following
 options to GNU Autoconf to generate shared R libraries and to link R with the MKL BLAS and
 LAPACK libraries: \texttt{--without-x}, \texttt{--enable-R-shlib},
 \texttt{--enable-shared}, \texttt{--with-blas}, and \texttt{--with\\-lapack}. The MKL
 libraries provided the optimized and parallelized BLAS and LAPACK implementation
-dependencies for all of our experiments. While there are many other options for optimized parallel BLAS and LAPACK libraries, we chose to focus our efforts on Intel's implementation of MKL.
+dependencies for all of our experiments. While there were many other options for optimized
+parallel BLAS and LAPACK libraries, we chose to focus our efforts on Intel's MKL.
 
 The threading environment of each microbenchmark was configured through OpenMP and MKL
 environment variables. As recommended in the MKL developer's guide~\cite{intel:mkl2017}
@@ -249,14 +246,13 @@ intel:cpp2017, intel:mkl11_2, intel:mkl2017}. The scalability of the microbenchm
 tested by increasing the number of MKL threads through the environment variable
 \texttt{MKL\_NUM\_THREADS}.
 
-% JRM - Justify thread counts
 Hyperthreading was not enabled on the SNB processors, but it was enabled on the KNL
 processors. We observed no improvements in scalability by placing more than one thread on
-each core of the KNL processors, but have included results for more than 68 threads for
-completeness. In fact, as shown in figure \ref{fig:knlScalabilityLimits}, increasing the
+each core of the KNL processors, but we included results for more than 68 threads for
+completeness. In fact, as shown in Figure \ref{fig:knlScalabilityLimits}, increasing the
 number of threads beyond the number of physical cores actually has a detrimental effect on
 performance. The thread counts we tested on the SNB nodes were: $1$, $2$, $4$, $8$, $12$, and
-$16$; and the thread counts tested on the KNL nodes were: $1$, $2$, $4$, $8$, $16$, $34$,
+$16$; and the thread counts we tested on the KNL nodes were: $1$, $2$, $4$, $8$, $16$, $34$,
 $66$, $68$, $136$, $204$, and $272$. Small matrix dimensions of size $2000$ and $4000$
 were often sufficient to determine performance cross over points for the linear algebra
 kernels where one node type would begin to outperform the other given an increase in
@@ -265,39 +261,40 @@ utilized a large number of threads on the KNL nodes. Apart from some
 exceptions, we tested the linear algebra kernels with square matrices having the following
 row dimensions $N$: $1000$, $2000$, $4000$, $8000$, $10000$, $15000$, $20000$, and
 $40000$; in the case of the linear least squares fit kernel, the matrix dimensions were
-$2N \times N/2$ for the same values of $N$. For each combination of matrix dimension and
-number of threads for a given microbenchmark, we collected the run time and computed the
-strong scaling as the ratio of the run time of the microbenchmark to the run time of the
-microbenchmark with a single thread. We attempted to run performance tests up to matrix
+$2N \times N/2$ for the same values of $N$.
+We collected the microbenchmark run time for each value of $N$ and number of threads, and
+computed the strong scaling as the ratio of each run time to the run time with a single
+thread.  We attempted to run performance tests up to matrix
 dimensions of $30000$ and $40000$ on the SNB and KNL nodes,
 respectively; however, some kernels could not be tested with these dimensions due to the
 memory capacity and internal size limitations imposed by R.
 
-The \texttt{nnet} was configured function so that several iterations of the underlying
-solver would be required to optimize the neural net. The number of neurons in the hidden
-layer (\texttt{size}) was set to $200$; the maximum number of solver iterations
-(\texttt{maxit}) to $12500$; the absolute tolerance for the fit criterion
-(\texttt{abstol}) to $1.0\times 10^{-6}$; the relative tolerance (\texttt{reltol}) to
-$1.0\times 10^{-11}$; the flag enabling real-value outputs (\texttt{linout}) to
-\texttt{TRUE}; and the maximum allowable number of weights (\texttt{MaxNWts}) to $4000$.
-The \texttt{pam} function was executed with default parameters.
+The \texttt{nnet} function was configured so that several iterations of the underlying
+solver would be required to optimize the neural net.
+We set the parameters to the \texttt{nnet} function as follows:
+the number of neurons in the hidden layer (\texttt{size}) was $200$;
+the maximum number of solver iterations (\texttt{maxit}) was $12500$, enough that several
+iterations of the underlying solver would be required to optimize the neural net;
+the absolute tolerance for the fit criterion (\texttt{abstol}) was $1.0\times 10^{-6}$;
+the relative tolerance (\texttt{reltol}) was
+$1.0\times 10^{-11}$;
+the flag enabling real-value outputs (\texttt{linout}) was \texttt{TRUE};
+and the maximum allowable number of weights (\texttt{MaxNWts}) was $4000$.
+We executed the \texttt{pam} function with default values for the parameters.
 
 \section{Results} \label{sec:results}
 
-Each of the microbenchmarks was run on both SNB and KNL for the matrix sizes and thread
-counts enumerated in section \ref{sec:methodology}. This section outlines the results
-obtained for the linear algebra benchmarks. In general, the results are for KNL
-nodes with the MCDRAM operating in cached quadrant mode with hyperthreading enabled.
-Additional results are presented for a small number of tests using different MCDRAM
-configurations, different compiler configurations, and some additional results for higher
-level machine learning packages \texttt{nnet} and \texttt{cluster}. We also implemented
-and tested several equivalent microbenchmarks in C to determine the overhead incurred by R
-functions calling MKL. While highlights are presented here, all of the results of the
-tests can be obtained at~\cite{iu:stamp2017}.
+In general, the results are for KNL nodes with the MCDRAM operating in cached quadrant
+mode with hyperthreading enabled.  Additional results are presented for a small number
+of tests using different MCDRAM configurations, different compiler configurations, and
+some additional results for machine learning packages \texttt{nnet} and
+\texttt{cluster}. We also implemented and tested several equivalent microbenchmarks in
+C to determine the overhead incurred by R functions calling MKL. While highlights are
+presented here, all test results can be obtained at~\cite{iu:stamp2017}.
 
 \subsection{Results from dense linear algebra microbenchmarks}
 
-After running each of the microbenchmarks from table \ref{tab:microbenchmarks} for all of
+After running each of the microbenchmarks from Table \ref{tab:microbenchmarks} for all of
 the thread counts and matrix sizes on both KNL and SNB, we compared the run times and
 scalability for each platform. For each microbenchmark we determined the minimum run time
 over all tested numbers of threads. We computed the minimum run times in this manner for
@@ -320,35 +317,34 @@ bundle.
 \label{fig:largeLinsolveTime}
 \end{figure}
 
-When comparing SNB performance to KNL we found that the SNB architecture could outperform
+When comparing SNB performance to KNL, we found that the SNB architecture could outperform
 KNL for small matrix sizes. Several of the microbenchmarks, including Cholesky
 factorization, linear solve, QR decomposition, and singular value decomposition (SVD) all
 showed better performance on SNB for small matrix sizes, with a crossover in performance
-to KNL occurring for moderate sized matrices, and KNL significantly outperforming SNB for
+to KNL occurring for moderate sized matrices; KNL significantly outperformed SNB for
 large matrix sizes. When looking at the best run times achieved by each node type, the SNB
-nodes executed the Cholesky factorization up to $2.00$ times faster for tested matrix
-sizes of $2000$ or smaller, the linear solve $1.77$ times faster for matrix size of
-$1000$, and the matrix determinant $1.80$ times faster for matrix size of $1000$. However,
-the KNL architecture began to outperform SNB for matrix sizes at or above $2000$ or $4000$
-for the same kernels. In the best cases (i.e. the largest matrices), KNL achieved run
+nodes executed the Cholesky factorization up to $2.00$ times faster for tested values of
+$N\leq 2000$, the linear solve $1.77$ times faster for $N=1000$, and the matrix determinant
+$1.80$ times faster for $N=1000$.
+However, the KNL architecture began to outperform SNB for tested values of $N$ greater than or
+equal to $2000$ or $4000$ for the same kernels. In the best cases (i.e. the largest matrices),
+KNL achieved run
 times that were $4.03$ (Cholesky factorization), $4.41$ (linear solve), and $5.23$ (matrix
 determinant) times faster than those achieved on the SNB nodes given matrix dimensions of
 $30000$, $20000$, and $40000$, respectively. Figure \ref{fig:largeLinsolveTime} shows the
 run times for the linear solve microbenchmark for various thread counts on both SNB and
-KNL with a matrix size of $20000$.
+KNL with $N=20000$.
 
 The SNB nodes achieved $64\%$, $81\%$, and $84\%$ speedup efficiency with sixteen threads
-executing the Cholesky factorization kernel with tested matrix dimensions of $30000$, the
-linear solve kernel with tested matrix dimensions of $20000$, and the matrix determinant
-kernel with tested matrix dimensions of $40000$, respectively.
-The KNL nodes achieved $38\%$, $48\%$, and $64\%$ speedup efficiency
+executing the Cholesky factorization kernel with $N=30000$, the
+linear solve kernel with $N=20000$, and the matrix determinant
+kernel with $N=40000$, respectively.  The KNL nodes achieved $38\%$, $48\%$, and $64\%$ speedup efficiency
 for the same kernels and matrix dimensions. While the KNL performance in terms of
 run time is appreciably better than the SNB performance for large matrices, the efficiency
-is not nearly as good when measured as a percentage of linear speedup, it is only by
-virtue of the fact that there are so many more cores on KNL and the matrices are large
-enough that the faster run times are achieved.
-This can be seen in the scalability curves
-presented in figure \ref{fig:cholSolveScale} where the KNL results deviate from linear as
+is not nearly as good when measured as a percentage of linear speedup; it is only by
+virtue of the fact that there are so many more cores on KNL and that the matrices are large
+enough that the smaller run times are achieved.  This can be seen in the scalability curves
+presented in Figure \ref{fig:cholSolveScale} where the KNL results deviate from linear as
 the core count increases toward the number of physical cores on the KNL.
 \begin{figure}
 \includegraphics[height=\columnwidth, width=\columnwidth]{chol_solve_20000_68-ss.pdf}
@@ -356,14 +352,13 @@ the core count increases toward the number of physical cores on the KNL.
 \label{fig:cholSolveScale}
 \end{figure}
 
-The QR decomposition kernel, performed up
-to $1.48$ times faster on the SNB nodes for matrix dimensions of $2000$ or less. For
-matrix dimensions of $4000$ or more, the KNL nodes were up to $6.32$ times faster than the
-SNB nodes. The KNL nodes achieved speedup efficiencies of at most $28\%$, and
-the SNB nodes achieved speedup efficiency of at most $38\%$. The SVD kernel
-exhibited similar performance.  For each tested matrix dimension of $2000$ or less, the
+The QR decomposition kernel, performed up to $1.48$ times faster on the SNB nodes for tested
+values of $N \leq 2000$. For matrix dimensions of $4000$ or more, the KNL nodes were up
+to $6.32$ times faster than the SNB nodes. The KNL nodes achieved speedup efficiencies of at
+most $28\%$, and the SNB nodes achieved speedup efficiency of at most $38\%$. The SVD kernel
+exhibited similar performance.  For each tested value of $N \leq 2000$, the
 SVD kernel was up to $1.78$ times faster on SNB nodes than on KNL nodes. For tested matrix
-dimensions of $4000$ or greater, the kernel was up to $4.25$ times as fast as on the SNB
+of $N \geq 4000$, the kernel was up to $4.25$ times as fast as on the SNB
 nodes. The speedup efficiencies achieved by the KNL and SNB nodes
 were at most $23\%$ and $22\%$, respectively.
 \begin{figure}
@@ -375,29 +370,29 @@ were at most $23\%$ and $22\%$, respectively.
 Both the eigendecomposition and linear least squares kernels had difficulty scaling
 to higher thread counts on both SNB and KNL. In general, the SNB nodes performed better
 overall for these two kernels. The eigendecomposition kernel performed up to $2.75$ times
-faster on the SNB nodes than on the KNL nodes for tested matrix dimensions of $8000$ or
-less. As we increased the matrix dimension beyond $8000$, the KNL nodes were up to $1.54$
-times faster than the SNB nodes. For tested matrix dimensions of $20000$ or less, the KNL
+faster on the SNB nodes than on the KNL nodes for tested values of $N \leq 8000$.
+As we increased $N$ beyond $8000$, the KNL nodes were up to $1.54$
+times faster than the SNB nodes. For tested values of $N \leq 20000$, the KNL
 nodes achieved at most $5\%$ speedup efficiency, and the SNB nodes achieved
 at most $17\%$ speedup efficiency. The eigendecomposition kernel never scaled
 beyond eight threads on the SNB nodes, regardless of matrix dimension, but the performance
 did not deteriorate as the maximum number of threads (sixteen) was reached either. The
-performance characteristics for various thread counts with matrix size $4000$ can be seen
-in figure \ref{fig:mediumEigenTime}. The linear least squares fit kernel experienced
+performance characteristics for various thread counts with $N=4000$ can be seen
+in Figure \ref{fig:mediumEigenTime}. The linear least squares fit kernel experienced
 difficulties scaling beyond four threads on the SNB nodes. The SNB run times were up to
-$2.18$ times faster than those of the KNL nodes for tested values of $N=8000$ or less, and
+$2.18$ times faster than those of the KNL nodes for tested values of $N \leq 8000$, and
 the SNB nodes achieved at most $10\%$ of the maximum possible speedup for tested values of
-$N=20000$ or less. The KNL run times were up to $1.46$ times faster than the SNB nodes for
-tested matrix sizes greater than $8000$. The strong scaling on KNL nodes stagnated beyond
+$N \leq 20000$. The KNL run times were up to $1.46$ times faster than the SNB nodes for
+tested values of $N > 8000$. The strong scaling on KNL nodes stagnated beyond
 eight threads, achieving only $5\%$ speedup efficiency for tested values of
-$N=20000$ or less.
+$N \leq 20000$.
 
-For the matrix cross product and matrix-matrix multiplication microbenchmarks the KNL
+For the matrix cross product and matrix-matrix multiplication microbenchmarks, the KNL
 nodes had equal or greater performance than the SNB nodes for all matrix dimensions and
 numbers of threads tested. The matrix cross product kernel was up to $4.27$ times faster
-on the KNL nodes than on the SNB nodes for tested matrix dimensions of $40000$ or less.
+on the KNL nodes than on the SNB nodes for tested values of $N \leq 40000$.
 The matrix-matrix multiplication kernel was up to $3.12$ times as fast on the KNL nodes
-than on the SNB nodes for tested matrix dimensions greater than $2000$. The KNL and SNB
+than on the SNB nodes for tested of $N > 2000$. The KNL and SNB
 nodes executing the matrix cross product kernel achieved speedup efficiencies of
 $51\%$ and $84\%$ of their maximum speedup, respectively. The KNL and SNB nodes executing the matrix-matrix
 multiplication kernel achieved speedup efficiencies of $43\%$ and $96\%$, respectively.
@@ -412,7 +407,7 @@ are given in Figure~\ref{fig:largeMatmatTime}.
 
 The matrix-vector multiplication kernel on the SNB nodes consistently outperformed the KNL
 nodes for all tested matrix dimensions and numbers of threads. The kernel was up to $6.14$
-times faster on the SNB nodes than the KNL nodes for matrix dimensions of $40000$ or less.
+times faster on the SNB nodes than the KNL nodes for tested values of $N \leq 40000$.
 The speedup efficiencies achieved by the KNL and SNB nodes with the kernel were $2\%$ and
 $9\%$, respectively.
 
@@ -440,20 +435,21 @@ were parallelized.
 Analysis tools and performance results revealed that neither of the package functions was
 multithreaded.  The SNB nodes were approximately $3.5$
 times faster and $3.0$ times faster than the KNL nodes at training the neural network with
-three features and five features (table~\ref{tab:nnetResults}), respectively. Note that
+three features and five features (Table~\ref{tab:nnetResults}), respectively. Note that
 the run times decreased when we increased the number of feature vectors from $5000$ to
 $10000$ and the feature vector was of dimension three. This is because neural network
-training solves a non-convex objective function that can vary greatly with the number of
-training vectors and features; therefore, it is useful only to compare performance between
-the two node types for a pair of features and number of training vectors. The SNB nodes
-were approximately $1.38$-$1.44$ times faster than the KNL nodes when running the
-\texttt{pam} function for up to $17500$ feature vectors, but the KNL nodes closed that gap
-to approximately $1.05$ times as fast for $35000$ feature vectors. With $40005$ or more
-feature vectors, the KNL nodes were as much as $1.11$ times faster than the SNB nodes.
+training searches for the minimizer of an objective function that can vary
+greatly with the number of training vectors and features; therefore, it is useful only to
+compare performance between the two node types for the same number of features and number
+of training vectors.  The SNB nodes were approximately $1.38$-$1.44$ times faster than the
+KNL nodes when running the \texttt{pam} function for up to $17500$ feature vectors, but
+the KNL nodes closed that gap to approximately $1.05$ times as fast for $35000$ feature
+vectors. With $40005$ or more feature vectors, the KNL nodes were as much as $1.11$ times
+faster than the SNB nodes.
 
 % Neural networking benchmark results
 \begin{table}
-  \caption{Run Time of Neural Network Training Benchmark}
+  \caption{Run Time of Neural Network Training}
   \label{tab:nnetResults}
   \begin{tabular}{llcc}
     \toprule
@@ -471,7 +467,7 @@ feature vectors, the KNL nodes were as much as $1.11$ times faster than the SNB 
 
 % Clustering benchmark results
 \begin{table}
-  \caption{Run Time of Clustering Benchmark}
+  \caption{Run Time of Clustering}
   \label{tab:clusterResults}
   \begin{tabular}{lllcc}
     \toprule
@@ -497,9 +493,9 @@ and validity checking that is common in interpreted languages. To determine the 
 for further optimization of R functionality, we developed a set of drivers for the matrix
 cross product, QR decomposition, and linear solve in C and compared their performance to
 their R internal function counterparts. The cross product internal function is
-implemented as a call to the LAPACK FORTRAN function \texttt{dsyrk} followed by a for loop
+implemented as a call to the LAPACK FORTRAN function \texttt{dsyrk} followed by a for-loop
 to copy the upper triangle of the result matrix to its lower triangle; the C driver
-implements the for loop with a \texttt{simd} pragma not performed in the R kernel, improving
+implements the for-loop with a \texttt{simd} pragma not performed in the R kernel, improving
 the vectorization of the C driver. The QR decomposition internal function is implemented as a call
 to the LAPACK FORTRAN function \texttt{dgeqp3}, and the dense linear solve internal
 function is implemented as a call to the LAPACK FORTRAN function \texttt{dgesv}. The C
@@ -511,13 +507,12 @@ The single threaded results for $N=1000$ showed that the cross product,
 QR decomposition, and linear solve C drivers were $8\%$, $3\%$, and $14\%$ faster than their
 R counterparts.  For $N=20000$, the C drivers were only $2\%$, $1\%$, and $2\%$ faster for
 the same kernels.
+
 The performance curves for the dense linear solve applied to the smallest tested matrix
-dimensions do show performance anomalies.  Specifically, there is a substantial difference
-between the strong scaling of the C driver and the R kernel when using two threads. Furthermore, the C
-driver scalability diverges sharply from that of the R kernel for eight or more threads
-for matrix dimensions $1000$ and $2000$. We reran the strong scaling test of the C driver
-several times for the smaller matrix dimensions to verify the results, with no appreciable
-change in the curves.
+dimensions did show performance anomalies.
+Specifically, the strong scaling of the C driver remains more or less flat for 8-64 threads with
+$N=1000$ and $N=2000$, while the R wrapper function achieves speedups roughly twice that of the
+C driver.
 
 \section{Discussion} \label{sec:discuss}
 \begin{figure}
@@ -526,7 +521,7 @@ change in the curves.
 \label{fig:knlScalabilityLimits}
 \end{figure}
 We developed a new R HPC benchmarking package consisting of microbenchmarks of several
-computational kernels and benchmarks of machine learning functions from the standard R
+computational kernels and machine learning functions from the standard R
 distribution. The implementation of the benchmarks improves upon limitations of the few R
 benchmarks that have been developed to date, namely the inability to perform scalability
 studies over successively larger problem sizes and to independently configure how each
@@ -538,35 +533,35 @@ SNB nodes was never more than three times as fast as the best run time achieved 
 nodes for a given matrix dimension, except in the case of matrix-vector multiplication,
 for which the SNB nodes were over six times faster than the KNL nodes. The poor
 scalability of the matrix-vector kernel may be because the single-core performance is very
-high and matrices of larger dimension could not be tested to increase the workload per
+high; matrices of larger dimension could not be tested to increase the workload per
 core due to limitations on matrix dimensions imposed by R and memory allocation failures
 that occurred.
 
-When we tested the Cholesky factorization, linear solve, matrix determinant, matrix-matrix
-multiplication, and matrix cross product kernels, the KNL nodes achieved strong scaling
-speedups of up to $45$ times their single-threaded performance for large matrices.
+The KNL nodes achieved strong scaling speedup values of up to 45 for large matrices
+tested with Cholesky factorization, linear solve, matrix determinant, matrix-matrix
+multiplication, and matrix cross product kernels.
 Furthermore, the KNL nodes were up to $5.25$ times faster than the SNB nodes for the same
 kernels and the largest matrix dimensions. KNL was also $6.5$ times faster than the SNB
 architecture for QR and singular value decompositions for the largest tested matrix
 dimensions, and the KNL nodes achieved strong scaling speedups of up to $19$. The KNL
 nodes achieved modest strong scaling speedups of up to $3.5$ for large matrix dimensions
-when we tested them with the eigendecomposition and the linear least squares fit kernels.
+with the eigendecomposition and the linear least squares fit kernels.
 Due to the limited scalability of these kernels, the KNL nodes were only about $1.5$ times
 faster than the SNB nodes.
 
 In summary, we were able to draw five important conclusions from our research.
 \begin{enumerate}
 \item Strong scaling flattens past 68 threads for the benchmarked linear algebra kernels,
-which heavily leverage the linear algebra routines of MKL. As evidenced in figure
+which heavily leverage the linear algebra routines of MKL. As evidenced in Figure
 \ref{fig:knlScalabilityLimits}, we saw that increasing the thread count beyond the
 physical number of cores did not provide any benefit to performance, and in many cases,
 was detrimental to performance. The plot of strong scaling shows results for up to $272$
 threads on the KNL node to show how strong scaling decreases after more threads than the
 number of cores are applied, a performance characteristic that was true of all of the
 matrix kernels we tested. In the best cases we saw results similar to those for
-eigendecomposition shown in figure \ref{fig:knlScalabilityLimits} where the scalability
+eigendecomposition shown in Figure \ref{fig:knlScalabilityLimits} where the scalability
 flattens and the run time does not improve with increasing thread count. However, in the
-worst cases, such as matrix-matrix multiplication shown in figure
+worst cases, such as matrix-matrix multiplication shown in Figure
 \ref{fig:knlScalabilityLimits} the performance actually decreases substantially when
 increasing thread count.
 
@@ -588,10 +583,10 @@ affected by memory fragmentation. Also, it should be noted that the largest matr
 tested would fit entirely in MCDRAM, so we were not evaluating MCDRAM as a cache device in
 larger or longer-running calculations.
 
-\item Finally, many higher level R packages are not properly structured to take full
+\item Finally, many R packages are not properly structured to take full
 advantage of the many-core, vectorized architecture of the Xeon Phi, and they do not
 leverage the MKL functionality exposed in the microbenchmarked functions. The two
-higher-level packages we tested, \textit{nnet} and \textit{cluster}, did not perform
+packages we tested, \textit{nnet} and \textit{cluster}, did not perform
 particularly well on KNL compared to SNB. And although it is certainly possible to
 implement these algorithms using the functions we tested in the linear algebra
 microbenchmarks via MKL or some other optimized linear algebra libraries, it appears that
@@ -608,12 +603,12 @@ to run optimally on the KNL architecture. However, the R ecosystem is quite broa
 is reasonable to include additional benchmark areas.
 %Fortunately, owing to the design of the benchmarking framework this is not difficult to do.
 We will work to extend the benchmark to include sparse linear algebra kernels from the
-\textit{matrix} library, and summary statistics kernels such as mean, variance, and
-covariance computation.
-
+\textit{matrix} library, and summary statistics kernels such as covariance computation.
 Additional compute intensive machine learning or data analytics functionality commonly
 used in R should eventually be included in the benchmark to provide more extensive
-performance assessments. If the performance of the \textit{nnet} and \textit{cluster}
+performance assessments.
+
+If the performance of the \textit{nnet} and \textit{cluster}
 packages are an indication of the performance of R packages in general, packages will
 likely need to be vectorized and either parallelized or restructured to take full
 advantage of the KNL architecture. It should also be noted, that the trend toward higher
